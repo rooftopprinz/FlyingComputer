@@ -1,0 +1,28 @@
+Power Management:
+    Input:
+        - Throttle Lever: /pilot/input/set_throttle_lever rpc:()(<double>(-1.0..1.0))
+        - Autothrottle Switch: /pilot/input/set_autothrottle rpc:()(<bool>)
+        - Airspeed: /flight_instrument_system/indicated_air_speed <double>
+    Output:
+        - Power Setting: /flight_power_and_control_surfaces/set_symetric_power rpc:()(<double>(-1.0..1.0))
+        - Autothrottle mode: /pilot/throttle_mode <EThrottleMode>
+
+PitchPowerContext:
+    /* manages data from ptree */
+    - set power
+    - set elevator input
+    - get power input
+    - get elevator input
+    - get pitch
+    - get air speed
+
+PitchPowerManager:
+    /* register watcher for thrott lever, autothrottle switch, airspeed and notify corresponding fsm 
+    */
+
+    - manager thread
+    - stopper
+
+PitchPowerManager *-- ThrottleFsm
+PitchPowerManager *-- PitchPowerContext
+ThrottleFsm --> PitchPowerContext : uses
