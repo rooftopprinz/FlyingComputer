@@ -45,6 +45,12 @@ AUTOPILOT_OBJECTS_GCOV   := $(addprefix $(BUILDDIR_GCOV)/, $(AUTOPILOT_SOURCES:.
 AUTOPILOT_TESTS_OBJECTS  	   := $(addprefix $(BUILDDIR)/, $(AUTOPILOT_TEST_SOURCES:.cpp=.cpp.o))
 AUTOPILOT_TESTS_OBJECTS_GCOV  := $(addprefix $(BUILDDIR_GCOV)/, $(AUTOPILOT_TEST_SOURCES:.cpp=.cpp.o))
 
+AUTOPILOT_DEPS = $(AUTOPILOT_OBJECTS:%.o=%.d)
+AUTOPILOT_TEST_DEPS = $(AUTOPILOT_TESTS_OBJECTS:%.o=%.d)
+
+-include $(AUTOPILOT_DEPS)
+-include $(AUTOPILOT_TEST_DEPS)
+
 ## TARGET GTEST #########################################################################
 
 $(GTEST):
@@ -66,7 +72,7 @@ autopilot: $(PTREE_STATIC_LIB) $(AUTOPILOT_OBJECTS)
 $(AUTOPILOT_OBJECTS): $(BUILDDIR)/%.cpp.o : %.cpp
 	@mkdir -p $(@D)
 	@echo "Building SOURCE" $@
-	@$(CC) $(CFLAGS) $(AUTOPILOT_INCDIR_GCC) -g -c $(patsubst $(BUILDDIR)/%.cpp.o,%.cpp,$@) -o $@
+	@$(CC) $(CFLAGS) $(AUTOPILOT_INCDIR_GCC) -MMD -g -c $(patsubst $(BUILDDIR)/%.cpp.o,%.cpp,$@) -o $@
 
 ## TARGET autopilot UT #########################################################################
 
@@ -87,7 +93,7 @@ autopilot_ut_valgrind_run_detailed: autopilot_ut
 $(AUTOPILOT_TESTS_OBJECTS): $(BUILDDIR)/%.cpp.o : %.cpp
 	@mkdir -p $(@D)
 	@echo "Building TEST" $@
-	@$(CC) $(CFLAGS) $(AUTOPILOT_TESTINCDIR_GCC) -g -c $(patsubst $(BUILDDIR)/%.cpp.o,%.cpp,$@) -o $@
+	@$(CC) $(CFLAGS) $(AUTOPILOT_TESTINCDIR_GCC) -MMD -g -c $(patsubst $(BUILDDIR)/%.cpp.o,%.cpp,$@) -o $@
 
 clean_autopilot_ut:
 	echo cleaning ut
