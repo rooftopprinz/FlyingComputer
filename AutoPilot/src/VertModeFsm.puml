@@ -1,0 +1,50 @@
+@startuml
+note as Events
+Events:
+* evtVertModeCh - "Vertical mode change"
+* evtApModech - "AP mode change"
+* evtAltCh - "Altitude change"
+end note
+
+note as Variables
+Variables:
+ ALT - "Current baro altitude"
+ ACC_ALT - "Acceleration altitude"
+ TM - "Throttle mode"
+ AM - "Auto throttle management mode"
+ VM - "Vertical managament mode"
+end note
+
+note as Conditions
+Conditions:
+ HAS_POWER := TM anyof {MAN, AUTO, TOGA}
+ SRS_CLB := ALT<ACC_ALT
+ MANAGED := VM == MANAGED_MODE && AM == MANAGED_MODE
+ TO_CLB := ALT < ALT_SEL
+ TO_DES := ALT > ALT_SEL
+ TO_ALT := ALT == ALT_SEL
+end note
+
+MAN:
+SRS:
+CLB:
+OPCLB:
+ALT:
+HOLD:
+DES:
+OPDES:
+VS:
+VGS:
+
+MAN -> SRS: evtEnAP & SRS_CLB &  HAS_POWER
+MAN -> CLB: evtEnAP & TO_CLB & MANAGED
+MAN -> OPCLB: evtEnAP & TO_CLB & !MANAGED
+MAN -> DES: evtEnAP & TO_DES & MANAGED
+MAN -> OPDES: evtEnAP & TO_DES & !MANAGED
+MAN -> ALT: evtEnAP & TO_ALT
+SRS -> CLB: evtAltCh & !SRS_CLB & TO_CLB & MANAGED
+SRS -> OPCLB: evtAltCh & !SRS_CLB & TO_CLB & !MANAGED
+CLB -> ALT: evtAltCh & TO_ALT
+OPCLB -> ALT: evtAltCh & TO_ALT
+
+@enduml

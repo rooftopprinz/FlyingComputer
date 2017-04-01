@@ -1,0 +1,182 @@
+@startuml
+
+class Event {
+    + uint64_t getEventId()
+    + void *getEventData()
+}
+
+Interface IState {
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+Interface IFiniteStateMachine {
+    + void changeState(IState& target)
+}
+
+Class ThrottleFsm {
+    + void changeState(IState& target)
+    + void triggerEvent(Event& event)
+    - IState *currentState
+    - tuple<ManualThrottleState, AutoThrottleState, TogaThrottleState, TogaLkThrottleState, IdleThrottleState> throttleStates;
+}
+
+class ManualThrottleState {
+    - void dispatchEvent(uint64_t eventId)
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+class AutoThrottleState {
+    - void dispatchEvent(uint64_t eventId)
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+class TogaThrottleState {
+    - void dispatchEvent(uint64_t eventId)
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+class TogaLkThrottleState {
+    - void dispatchEvent(uint64_t eventId)
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+class IdleThrottleState {
+    - void dispatchEvent(uint64_t eventId)
+    + void onEnter()
+    + void onExit()
+    + void onEvent(Event& event)
+}
+
+class SpeedChangeEventData {
+    + double speed
+}
+
+class LeverChangeEventData {
+    + double lever
+}
+
+class FDChangeEventData {
+    + bool status
+}
+
+enum EVerticalMode{
+    Selected
+    Managed
+    Manual
+}
+
+class VerticalModeChangeEventData {
+    + EVerticalMode mode
+}
+
+enum EPowerMode{
+    Selected
+    Managed
+    Manual
+}
+
+class PowerModeChangeEventData {
+    + EPowerMode mode
+}
+
+class PitchPowerContext {
+    + void setOutputPowerLeft ()
+    + void setOutputPowerRight ()
+    + void setOutputElevator ()
+    + double getInputElevator ()
+    + double getInputPowerLeft ()
+    + double getInputPowerRight ()
+    + double getAltSel ()
+    + double getSpdSel ()
+    + double getVsSel ()
+}
+
+class PitchPowerManager {
+.. AP Mode ..
+    + void setApEnable (bool)
+    + void setAthrEnable (bool)
+    + void setFdEnable (bool)
+    + void setPowerMode(EPowerMode)
+    + void setVerticalMode(EVerticalMode)
+    + void setAltSel (double)
+    + void setSpdSel (double)
+    + void setVsSel (double)
+.. Control Input ..
+    + void setInputElevator (double)
+    + void setInputPowerLeft (double)
+    + void setInputPowerRight (double)
+.. Flight System Input ..
+    + void pitchUpdate (double)
+    + void speedUpdate (double)
+}
+
+class RolllManager {
+    + void setAileron(double)
+    + void setRudder(double)
+    + void setPowerLeft (double)
+    + void setPowerRight (double)
+}
+
+class AutoPilotManager{ 
+.. ptree rpc handler ..
+    - void setAutoPilotEnableHandler (Buffer arg)
+    - void setAltSelHandler (Buffer arg)
+    - void setVsSelHandler (Buffer arg)
+    - void setVsSelHandler (Buffer arg)
+    - void setFdEnableHandle r(Buffer arg)
+    - void setSpdSelHandler (Buffer arg)
+    - void setHdgSelHandler (Buffer arg)
+    - void setVsEnable (Buffer arg)
+    - void setAthrEnable (Buffer arg)
+    - void setAileron (Buffer arg)
+    - void setRudder (Buffer arg)
+    - void setElevator (Buffer arg)
+    - void setSpoiler (Buffer arg)
+    - void setPowerLeft (Buffer arg)
+    - void setPowerRight (Buffer arg)
+}
+
+ManualThrottleState --|> IState
+AutoThrottleState --|> IState
+TogaThrottleState --|> IState
+TogaLkThrottleState --|> IState
+IdleThrottleState --|> IState
+ThrottleFsm --|> IFiniteStateMachine
+
+ThrottleFsm *-- ManualThrottleState
+ThrottleFsm *-- AutoThrottleState
+ThrottleFsm *-- TogaThrottleState
+ThrottleFsm *-- TogaLkThrottleState
+ThrottleFsm *-- IdleThrottleState
+
+Event o-- SpeedChangeEventData
+Event o-- LeverChangeEventData
+Event o-- FDChangeEventData
+Event o-- VerticalModeChangeEventData
+Event o-- PowerModeChangeEventData
+
+PowerModeChangeEventData ..> EPowerMode : uses
+VerticalModeChangeEventData ..> EVerticalMode : uses
+
+PitchPowerManager ..> Event : uses
+
+PitchPowerManager *-- ThrottleFsm
+PitchPowerManager *-- PitchPowerContext
+ThrottleFsm ..> PitchPowerContext : uses
+
+
+AutoPilotService *.. AutoPilotManager
+AutoPilotManager *.. PitchPowerManager
+AutoPilotManager *.. RolllManager
+
+@enduml
