@@ -1,17 +1,22 @@
-#ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_PITCHPOWERMANAGER_HPP_
-#define AUTOPILOT_PITCHPOWERMANAGEMENT_PITCHPOWERMANAGER_HPP_
+#ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_PITCHPOWERMANAGER_HPP_
+#define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_PITCHPOWERMANAGER_HPP_
 
-class PitchPowerContext
+#include "IPitchPowerContext.hpp"
+
+class PitchPowerContext : private IPitchPowerContext
 {
 public:
-    void setPower();
-    void setelevatorInput();
-    void getPowerInput();
-    void getElevatorInput();
-    void getPitch();
-    void getAirSpeed();
+    void setOutputPowerLeft(double power) override;
+    void setOutputPowerRight(double power) override;
+    void setOutputElevator(double angle) override;
+    double getInputElevator() override;
+    double getInputPowerLeft() override;
+    double getInputPowerRight() override;
+    double getAltSel() override;
+    double getSpdSel() override;
+    double getVsSel() override;
 
 private:
-}
+};
 
 #endif

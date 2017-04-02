@@ -11,6 +11,6 @@ private:
     void onLeverUpdate(ptree::Buffer& value);
     void onSpeedUpdate(ptree::Buffer& value);
     void onAutoPilotUpdate(ptree::Buffer& value);
-}
+};
 
 #endif

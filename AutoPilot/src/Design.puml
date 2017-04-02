@@ -1,23 +1,29 @@
 @startuml
 
-class Event {
-    + uint64_t getEventId()
-    + void *getEventData()
-}
-
 Interface IState {
     + void onEnter()
     + void onExit()
-    + void onEvent(Event& event)
 }
 
 Interface IFiniteStateMachine {
     + void changeState(IState& target)
 }
 
+class IThrottleEventHandler {
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
+}
+
 Class ThrottleFsm {
     + void changeState(IState& target)
-    + void triggerEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
     - IState *currentState
     - tuple<ManualThrottleState, AutoThrottleState, TogaThrottleState, TogaLkThrottleState, IdleThrottleState> throttleStates;
 }
@@ -26,46 +32,65 @@ class ManualThrottleState {
     - void dispatchEvent(uint64_t eventId)
     + void onEnter()
     + void onExit()
-    + void onEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
 }
 
 class AutoThrottleState {
     - void dispatchEvent(uint64_t eventId)
     + void onEnter()
     + void onExit()
-    + void onEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
 }
 
 class TogaThrottleState {
     - void dispatchEvent(uint64_t eventId)
     + void onEnter()
     + void onExit()
-    + void onEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
 }
 
 class TogaLkThrottleState {
     - void dispatchEvent(uint64_t eventId)
     + void onEnter()
     + void onExit()
-    + void onEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
 }
 
 class IdleThrottleState {
     - void dispatchEvent(uint64_t eventId)
     + void onEnter()
-    + void onExit()
-    + void onEvent(Event& event)
+    + void onEvent(SpeedChangeEvent& event)
+    + void onEvent(LeverChangeEvent& event)
+    + void onEvent(FDChangeEvent& event)
+    + void onEvent(VerticalModeChangeEvent& event)
+    + void onEvent(PowerModeChangeEvent& event)
 }
 
-class SpeedChangeEventData {
+class SpeedChangeEvent {
     + double speed
 }
 
-class LeverChangeEventData {
+class LeverChangeEvent {
     + double lever
 }
 
-class FDChangeEventData {
+class FDChangeEvent {
     + bool status
 }
 
@@ -75,7 +100,7 @@ enum EVerticalMode{
     Manual
 }
 
-class VerticalModeChangeEventData {
+class VerticalModeChangeEvent {
     + EVerticalMode mode
 }
 
@@ -85,20 +110,20 @@ enum EPowerMode{
     Manual
 }
 
-class PowerModeChangeEventData {
+class PowerModeChangeEvent {
     + EPowerMode mode
 }
 
-class PitchPowerContext {
-    + void setOutputPowerLeft ()
-    + void setOutputPowerRight ()
-    + void setOutputElevator ()
-    + double getInputElevator ()
-    + double getInputPowerLeft ()
-    + double getInputPowerRight ()
-    + double getAltSel ()
-    + double getSpdSel ()
-    + double getVsSel ()
+class IPitchPowerContext {
+    + void setOutputPowerLeft (double power)
+    + void setOutputPowerRight (double power)
+    + void setOutputElevator (double angle)
+    + double getInputElevator () const
+    + double getInputPowerLeft () const
+    + double getInputPowerRight () const
+    + double getAltSel () const
+    + double getSpdSel () const
+    + double getVsSel () const
 }
 
 class PitchPowerManager {
@@ -146,12 +171,18 @@ class AutoPilotManager{
     - void setPowerRight (Buffer arg)
 }
 
-ManualThrottleState --|> IState
-AutoThrottleState --|> IState
-TogaThrottleState --|> IState
-TogaLkThrottleState --|> IState
-IdleThrottleState --|> IState
+ThrottleState --|> IState
+ThrottleState --|> IThrottleEventHandler
+
+
+ManualThrottleState --|> ThrottleState
+AutoThrottleState --|> ThrottleState
+TogaThrottleState --|> ThrottleState
+TogaLkThrottleState --|> ThrottleState
+IdleThrottleState --|> ThrottleState
+
 ThrottleFsm --|> IFiniteStateMachine
+ThrottleFsm --|> IThrottleEventHandler
 
 ThrottleFsm *-- ManualThrottleState
 ThrottleFsm *-- AutoThrottleState
@@ -159,20 +190,14 @@ ThrottleFsm *-- TogaThrottleState
 ThrottleFsm *-- TogaLkThrottleState
 ThrottleFsm *-- IdleThrottleState
 
-Event o-- SpeedChangeEventData
-Event o-- LeverChangeEventData
-Event o-- FDChangeEventData
-Event o-- VerticalModeChangeEventData
-Event o-- PowerModeChangeEventData
-
-PowerModeChangeEventData ..> EPowerMode : uses
-VerticalModeChangeEventData ..> EVerticalMode : uses
-
-PitchPowerManager ..> Event : uses
+PowerModeChangeEvent ..> EPowerMode : uses
+VerticalModeChangeEvent ..> EVerticalMode : uses
 
 PitchPowerManager *-- ThrottleFsm
 PitchPowerManager *-- PitchPowerContext
-ThrottleFsm ..> PitchPowerContext : uses
+
+PitchPowerContext --|> IPitchPowerContext
+ThrottleFsm ..> IPitchPowerContext : uses
 
 
 AutoPilotService *.. AutoPilotManager

@@ -1,15 +1,20 @@
-#ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_IDLETHROTTLESTATE_HPP_
-#define AUTOPILOT_PITCHPOWERMANAGEMENT_IDLETHROTTLESTATE_HPP_
+#ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_IDLETHROTTLESTATE_HPP_
+#define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_IDLETHROTTLESTATE_HPP_
 
 #include <src/StateMachine/StateMachine.hpp>
+#include "ThrottleEventHandler.hpp"
 
-class IdleThrottleState : public IState
+class IdleThrottleState : public IState, public ThrottleEventHandler
 {
 public:
     void onEnter() override;
     void onExit() override;
-    void onEvent(IEvent& event) override;
+    void onEvent(SpeedChangeEvent& event) override;
+    void onEvent(LeverChangeEvent& event) override;
+    void onEvent(FdChangeEvent& event) override;
+    void onEvent(PowerModeChangeEvent& event) override;
+    void onEvent(VrsChangeEvent& event) override;
 private:
-}
+};
 
 #endif

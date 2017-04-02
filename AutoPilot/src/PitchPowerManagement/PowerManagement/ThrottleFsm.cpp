@@ -2,14 +2,15 @@
 #define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_AUTOTHROTTLEFSM_HPP_
 
 #include <src/StateMachine/StateMachine.hpp>
-#include "ThrottleEventHandler.hpp"
+#include "IThrottleEventHandler.hpp"
+
 #include "ManualThrottleState.hpp"
 #include "AutoThrottleState.hpp"
 #include "TogaThrottleState.hpp"
 #include "TogaLkThrottleState.hpp"
 #include "IdleThrottleState.hpp"
 
-class ThrottleFsm :  public IFiniteStateMachine, public ThrottleEventHandler
+class ThrottleFsm :  public IFiniteStateMachine, public IThrottleEventHandler
 {
 public:
     void changeState(IState& target);
