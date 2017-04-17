@@ -24,7 +24,7 @@ struct PowerModeChangeEvent
     EPowerMode mode;
 };
 
-struct VrsChangeEvent
+struct EffectiveStallSpeedChangeEvent
 {
     double speed;
 };

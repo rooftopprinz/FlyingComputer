@@ -11,7 +11,7 @@ public:
     virtual void onEvent(LeverChangeEvent& event) = 0;
     virtual void onEvent(FdChangeEvent& event) = 0;
     virtual void onEvent(PowerModeChangeEvent& event) = 0;
-    virtual void onEvent(VrsChangeEvent& event) = 0;
+    virtual void onEvent(EffectiveStallSpeedChangeEvent& event) = 0;
 };
 
 #endif

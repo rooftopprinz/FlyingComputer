@@ -10,7 +10,7 @@ public:
     // void onEvent(LeverChangeEvent& event) override;
     // void onEvent(FdChangeEvent& event) override;
     // void onEvent(PowerModeChangeEvent& event) override;
-    // void onEvent(VrsChangeEvent& event) override;
+    // void onEvent(EffectiveStallSpeedChangeEvent& event) override;
 };
 
 #endif

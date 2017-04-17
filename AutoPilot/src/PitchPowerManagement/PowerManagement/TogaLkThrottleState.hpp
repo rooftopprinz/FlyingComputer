@@ -7,13 +7,13 @@
 class TogaLkThrottleState : public IState, public ThrottleEventHandler
 {
 public:
-    void onEnter() override;
-    void onExit() override;
-    void onEvent(SpeedChangeEvent& event) override;
-    void onEvent(LeverChangeEvent& event) override;
-    void onEvent(FdChangeEvent& event) override;
-    void onEvent(PowerModeChangeEvent& event) override;
-    void onEvent(VrsChangeEvent& event) override;
+    void onEnter() {}
+    void onExit() {}
+    void onEvent(SpeedChangeEvent& event) {}
+    void onEvent(LeverChangeEvent& event) {}
+    void onEvent(FdChangeEvent& event) {}
+    void onEvent(PowerModeChangeEvent& event) {}
+    void onEvent(EffectiveStallSpeedChangeEvent& event) {}
 private:
 };
 

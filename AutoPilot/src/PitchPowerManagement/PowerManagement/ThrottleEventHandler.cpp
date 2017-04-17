@@ -17,6 +17,6 @@
 // {
 // }
 
-// void ThrottleEventHandler::onEvent(VrsChangeEvent& event)
+// void ThrottleEventHandler::onEvent(EffectiveStallSpeedChangeEvent& event)
 // {
 // }
