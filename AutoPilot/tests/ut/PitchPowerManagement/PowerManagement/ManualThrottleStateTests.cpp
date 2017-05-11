@@ -18,6 +18,7 @@ struct ManualThrottleStateTests : public ::testing::Test
 {
 
     ManualThrottleStateTests():
+        atState(fsmMock, ppctxMock, fltctxMock),
         manState(fsmMock, ppctxMock, fltctxMock)
     {
         manState.setTargetStateInstances(atState, tgState, tglState, idlState);
@@ -57,12 +58,20 @@ TEST_F(ManualThrottleStateTests, shouldTransitToga)
 
 TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenAirspeedSpeedLowers)
 {
-    
+    SpeedChangeEvent spdCh = {4.0};
+    EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
+    EXPECT_CALL(ppctxMock, getEffectiveStallSpeed())
+        .WillOnce(Return(5.0));
+    manState.onEvent(spdCh);
 }
 
 TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenStallSpeedHighers)
 {
-    
+    EffectiveStallSpeedChangeEvent efStallSpdCh = {5.0};
+    EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
+    EXPECT_CALL(ppctxMock, getIndicatedAirspeed())
+        .WillOnce(Return(4.0));
+    manState.onEvent(efStallSpdCh);
 }
 
 TEST_F(ManualThrottleStateTests, shouldTransitIdle)

@@ -1,19 +1,57 @@
-// #ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_AUTOTHROTTLESTATE_HPP_
-// #define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_AUTOTHROTTLESTATE_HPP_
+#include "AutoThrottleState.hpp"
 
-// #include <src/StateMachine/StateMachine.hpp>
-// #include "IThrottleEventHandler.hpp"
+AutoThrottleState::AutoThrottleState(IFiniteStateMachine& fsm,
+    IPitchPowerContext& pitchPowerContext,
+    IFlightContext& flightContext):
+        fsm(fsm),
+        pitchPowerContext(pitchPowerContext),
+        flightContext(flightContext)
+{
+}
 
-// class AutoThrottleState : public IState, public IThrottleEventHandler
-// {
-// public:
-//     void onEnter() override;
-//     void onExit() override;
-//     void onEvent(SpeedChangeEvent& event) override;
-//     void onEvent(LeverChangeEvent& event) override;
-//     void onEvent(FdChangeEvent& event) override;
-//     void onEvent(PowerModeChangeEvent& event) override;
-// private:
-// }
 
-// #endif
+void AutoThrottleState::onEnter()
+{
+
+}
+
+void AutoThrottleState::onExit()
+{
+
+}
+
+void AutoThrottleState::onEvent(SpeedChangeEvent& event)
+{
+
+}
+
+void AutoThrottleState::onEvent(LeverChangeEvent& event)
+{
+
+}
+
+void AutoThrottleState::onEvent(FdChangeEvent& event)
+{
+
+}
+
+void AutoThrottleState::onEvent(PowerModeChangeEvent& event)
+{
+
+}
+
+void AutoThrottleState::onEvent(EffectiveStallSpeedChangeEvent& event)
+{
+
+}
+
+void AutoThrottleState::setTargetStateInstances(ManualThrottleState& manualThrottleState, TogaThrottleState& togaThrottleState,
+    TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState)
+{
+
+}
+
+void AutoThrottleState::controlLoop()
+{
+
+}

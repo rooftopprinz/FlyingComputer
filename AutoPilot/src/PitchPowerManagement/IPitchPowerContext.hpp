@@ -7,6 +7,7 @@ public:
     virtual ~IPitchPowerContext() = default;
     virtual void setOutputPowerLeft(double power) = 0;
     virtual void setOutputPowerRight(double power) = 0;
+    virtual void setOutputPower(double power) = 0;
     virtual void setOutputElevator(double angle) = 0;
     virtual double getInputElevator() = 0;
     virtual double getInputPowerLeft() = 0;

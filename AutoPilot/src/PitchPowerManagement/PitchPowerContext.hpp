@@ -8,6 +8,7 @@ class PitchPowerContext : private IPitchPowerContext
 public:
     void setOutputPowerLeft(double power) override;
     void setOutputPowerRight(double power) override;
+    void setOutputPower(double power) override;
     void setOutputElevator(double angle) override;
     double getInputElevator() override;
     double getInputPowerLeft() override;
