@@ -2,6 +2,7 @@
 #define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_AUTOTHROTTLESTATE_HPP_
 
 #include <thread>
+#include <mutex>
 #include <src/PitchPowerManagement/IPitchPowerContext.hpp>
 #include <src/FlightCalculator/IFlightContext.hpp>
 #include <src/PitchPowerManagement/IPitchPowerContext.hpp>
@@ -24,6 +25,7 @@ public:
     AutoThrottleState(IFiniteStateMachine& fsm,
         IPitchPowerContext& pitchPowerContext,
         IFlightContext& flightContext);
+    ~AutoThrottleState();
     void onEnter();
     void onExit();
     void onEvent(SpeedChangeEvent& event);
@@ -36,7 +38,6 @@ public:
 private:
     void controlLoop();
 
-    std::thread controlLoopThread;
     IFiniteStateMachine& fsm;
     IPitchPowerContext& pitchPowerContext;
     IFlightContext& flightContext;
@@ -44,6 +45,11 @@ private:
     TogaThrottleState* togaThrottleState;
     TogaLkThrottleState* togaLkThrottleState;
     IdleThrottleState* idleThrottleState;
+
+    bool pauseControlLoop;
+    bool exitControlLoop;
+    std::mutex pauseControlLoopMutex;
+    std::thread controlLoopThread;
 };
 
 #endif

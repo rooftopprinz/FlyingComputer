@@ -60,7 +60,7 @@ TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenAirspeedSpeedLowers)
 {
     SpeedChangeEvent spdCh = {4.0};
     EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
-    EXPECT_CALL(ppctxMock, getEffectiveStallSpeed())
+    EXPECT_CALL(fltctxMock, getEffectiveStallSpeed())
         .WillOnce(Return(5.0));
     manState.onEvent(spdCh);
 }
@@ -69,7 +69,7 @@ TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenStallSpeedHighers)
 {
     EffectiveStallSpeedChangeEvent efStallSpdCh = {5.0};
     EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
-    EXPECT_CALL(ppctxMock, getIndicatedAirspeed())
+    EXPECT_CALL(fltctxMock, getIndicatedAirspeed())
         .WillOnce(Return(4.0));
     manState.onEvent(efStallSpdCh);
 }

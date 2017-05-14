@@ -5,8 +5,16 @@ AutoThrottleState::AutoThrottleState(IFiniteStateMachine& fsm,
     IFlightContext& flightContext):
         fsm(fsm),
         pitchPowerContext(pitchPowerContext),
-        flightContext(flightContext)
+        flightContext(flightContext),
+        pauseControlLoop(true),
+        exitControlLoop(false),
+        controlLoopThread(&AutoThrottleState::controlLoop, this)
 {
+}
+
+AutoThrottleState::~AutoThrottleState()
+{
+    controlLoopThread.join();
 }
 
 
