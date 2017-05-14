@@ -8,9 +8,8 @@
 #include <src/PitchPowerManagement/PowerManagement/ManualThrottleState.hpp>
 #include <src/PitchPowerManagement/PowerManagement/ThrottleFsm.hpp>
 
-#include <tests/mock/FlightContextMock.hpp>
-#include <tests/mock/PitchPowerContextMock.hpp>
 #include <tests/mock/FiniteStateMachineMock.hpp>
+#include <tests/mock/FlightInstrumentContextMock.hpp>
 
 using namespace testing;
 
@@ -18,15 +17,14 @@ struct ManualThrottleStateTests : public ::testing::Test
 {
 
     ManualThrottleStateTests():
-        atState(fsmMock, ppctxMock, fltctxMock),
-        manState(fsmMock, ppctxMock, fltctxMock)
+        atState(fsmMock),
+        manState(fsmMock, fltInsCtxMock)
     {
         manState.setTargetStateInstances(atState, tgState, tglState, idlState);
     }
 
     FiniteStateMachineMock fsmMock;
-    PitchPowerContextMock ppctxMock;
-    FlightContextMock  fltctxMock;
+    FlightInstrumentContextMock fltInsCtxMock;
 
     AutoThrottleState atState;
     TogaThrottleState tgState;
@@ -60,7 +58,7 @@ TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenAirspeedSpeedLowers)
 {
     SpeedChangeEvent spdCh = {4.0};
     EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
-    EXPECT_CALL(fltctxMock, getEffectiveStallSpeed())
+    EXPECT_CALL(fltInsCtxMock, getEffectiveStallSpeed())
         .WillOnce(Return(5.0));
     manState.onEvent(spdCh);
 }
@@ -69,7 +67,7 @@ TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenStallSpeedHighers)
 {
     EffectiveStallSpeedChangeEvent efStallSpdCh = {5.0};
     EXPECT_CALL(fsmMock, changeState(Ref(tglState)));
-    EXPECT_CALL(fltctxMock, getIndicatedAirspeed())
+    EXPECT_CALL(fltInsCtxMock, getIndicatedAirspeed())
         .WillOnce(Return(4.0));
     manState.onEvent(efStallSpdCh);
 }

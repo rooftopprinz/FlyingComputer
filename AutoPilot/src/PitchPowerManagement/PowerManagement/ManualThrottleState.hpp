@@ -1,9 +1,6 @@
 #ifndef AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_MANUALTHROTTLESTATE_HPP_
 #define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_MANUALTHROTTLESTATE_HPP_
 
-#include <src/PitchPowerManagement/IPitchPowerContext.hpp>
-#include <src/FlightCalculator/IFlightContext.hpp>
-#include <src/PitchPowerManagement/IPitchPowerContext.hpp>
 #include <src/StateMachine/StateMachine.hpp>
 #include "ThrottleEventHandler.hpp"
 #include "AutoThrottleState.hpp"
@@ -15,13 +12,13 @@ class AutoThrottleState;
 class TogaThrottleState;
 class TogaLkThrottleState;
 class IdleThrottleState;
+class IFlightInstrumentContext;
 
 class ManualThrottleState : public IState, public ThrottleEventHandler
 {
 public:
     ManualThrottleState(IFiniteStateMachine& fsm,
-        IPitchPowerContext& pitchPowerContext,
-        IFlightContext& flightContext);
+        IFlightInstrumentContext& flightInstrumentContext);
 
     ~ManualThrottleState();
     void onEnter() override;
@@ -36,8 +33,7 @@ public:
 
 private:
     IFiniteStateMachine& fsm;
-    IPitchPowerContext& pitchPowerContext;
-    IFlightContext& flightContext;
+    IFlightInstrumentContext& flightInstrumentContext;
     AutoThrottleState* autoThrottleState;
     TogaThrottleState* togaThrottleState;
     TogaLkThrottleState* togaLkThrottleState;

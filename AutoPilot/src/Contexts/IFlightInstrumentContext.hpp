@@ -4,7 +4,7 @@
 class IFlightInstrumentContext
 {
 public:
-    virtual ~IFlightInstrumentContext() = 0;
+    virtual ~IFlightInstrumentContext() = default;
     virtual double getEffectiveStallSpeed() =0;
     virtual double getIndicatedAirspeed() =0;
 };

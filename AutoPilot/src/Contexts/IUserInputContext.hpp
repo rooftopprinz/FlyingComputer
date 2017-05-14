@@ -4,7 +4,7 @@
 class IUserInputContext
 {
 public:
-    virtual ~IUserInputContext() = 0;
+    virtual ~IUserInputContext() = default;
     virtual double getInputElevator() = 0;
     virtual double getInputPowerLeft() = 0;
     virtual double getInputPowerRight() = 0;

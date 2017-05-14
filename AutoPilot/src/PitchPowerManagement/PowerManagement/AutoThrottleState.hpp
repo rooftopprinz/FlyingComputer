@@ -3,9 +3,6 @@
 
 #include <thread>
 #include <mutex>
-#include <src/PitchPowerManagement/IPitchPowerContext.hpp>
-#include <src/FlightCalculator/IFlightContext.hpp>
-#include <src/PitchPowerManagement/IPitchPowerContext.hpp>
 #include <src/StateMachine/StateMachine.hpp>
 #include "ThrottleEventHandler.hpp"
 #include "ManualThrottleState.hpp"
@@ -22,9 +19,7 @@ class IdleThrottleState;
 class AutoThrottleState : public IState, public ThrottleEventHandler
 {
 public:
-    AutoThrottleState(IFiniteStateMachine& fsm,
-        IPitchPowerContext& pitchPowerContext,
-        IFlightContext& flightContext);
+    AutoThrottleState(IFiniteStateMachine& fsm);
     ~AutoThrottleState();
     void onEnter();
     void onExit();
@@ -39,8 +34,6 @@ private:
     void controlLoop();
 
     IFiniteStateMachine& fsm;
-    IPitchPowerContext& pitchPowerContext;
-    IFlightContext& flightContext;
     ManualThrottleState* manualThrottleState;
     TogaThrottleState* togaThrottleState;
     TogaLkThrottleState* togaLkThrottleState;

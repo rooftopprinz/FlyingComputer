@@ -1,11 +1,7 @@
 #include "AutoThrottleState.hpp"
 
-AutoThrottleState::AutoThrottleState(IFiniteStateMachine& fsm,
-    IPitchPowerContext& pitchPowerContext,
-    IFlightContext& flightContext):
+AutoThrottleState::AutoThrottleState(IFiniteStateMachine& fsm):
         fsm(fsm),
-        pitchPowerContext(pitchPowerContext),
-        flightContext(flightContext),
         pauseControlLoop(true),
         exitControlLoop(false),
         controlLoopThread(&AutoThrottleState::controlLoop, this)

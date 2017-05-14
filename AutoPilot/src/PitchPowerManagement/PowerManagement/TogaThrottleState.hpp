@@ -2,7 +2,6 @@
 #define AUTOPILOT_PITCHPOWERMANAGEMENT_TOGATHROTTLESTATE_HPP_
 
 #include <src/StateMachine/StateMachine.hpp>
-#include <src/PitchPowerManagement/IPitchPowerContext.hpp>
 #include "ThrottleEventHandler.hpp"
 #include "AutoThrottleState.hpp"
 #include "TogaThrottleState.hpp"

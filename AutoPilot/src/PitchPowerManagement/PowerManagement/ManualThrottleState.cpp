@@ -1,11 +1,10 @@
 #include "ManualThrottleState.hpp"
+#include <src/Contexts/IFlightInstrumentContext.hpp>
 
 ManualThrottleState::ManualThrottleState(IFiniteStateMachine& fsm,
-    IPitchPowerContext& pitchPowerContext,
-    IFlightContext& flightContext):
+    IFlightInstrumentContext& flightInstrumentContext):
         fsm(fsm),
-        pitchPowerContext(pitchPowerContext),
-        flightContext(flightContext)
+        flightInstrumentContext(flightInstrumentContext)
 {
 
 }
@@ -27,7 +26,7 @@ void ManualThrottleState::onExit()
 
 void ManualThrottleState::onEvent(SpeedChangeEvent& event)
 {
-    if (flightContext.getEffectiveStallSpeed() <= event.speed)
+    if (flightInstrumentContext.getEffectiveStallSpeed() <= event.speed)
     {
         fsm.changeState(*togaLkThrottleState);
     }
@@ -60,7 +59,7 @@ void ManualThrottleState::onEvent(PowerModeChangeEvent& event)
 
 void ManualThrottleState::onEvent(EffectiveStallSpeedChangeEvent& event)
 {
-    if (flightContext.getIndicatedAirspeed() <= event.speed)
+    if (flightInstrumentContext.getIndicatedAirspeed() <= event.speed)
     {
         fsm.changeState(*togaLkThrottleState);
     }
