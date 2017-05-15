@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <src/StateMachine/StateMachine.hpp>
 #include "ThrottleEventHandler.hpp"
 #include "ManualThrottleState.hpp"
@@ -19,7 +20,7 @@ class IdleThrottleState;
 class AutoThrottleState : public IState, public ThrottleEventHandler
 {
 public:
-    AutoThrottleState(IFiniteStateMachine& fsm);
+    AutoThrottleState(IFiniteStateMachine& fsm, IFlightInstrumentContext& flightInstrumentContext);
     ~AutoThrottleState();
     void onEnter();
     void onExit();
@@ -34,14 +35,16 @@ private:
     void controlLoop();
 
     IFiniteStateMachine& fsm;
+    IFlightInstrumentContext& flightInstrumentContext;
     ManualThrottleState* manualThrottleState;
     TogaThrottleState* togaThrottleState;
     TogaLkThrottleState* togaLkThrottleState;
     IdleThrottleState* idleThrottleState;
 
     bool pauseControlLoop;
-    bool exitControlLoop;
+    std::atomic<bool> exitControlLoop;
     std::mutex pauseControlLoopMutex;
+    std::condition_variable pauseControlLoopCv;
     std::thread controlLoopThread;
 };
 
