@@ -3,43 +3,31 @@
 
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 #include <src/StateMachine/StateMachine.hpp>
-#include "ThrottleEventHandler.hpp"
-#include "ManualThrottleState.hpp"
-#include "TogaThrottleState.hpp"
-#include "TogaLkThrottleState.hpp"
-#include "IdleThrottleState.hpp"
+#include "CommonThrottleState.hpp"
 
+class CommonThrottleState;
 class ManualThrottleState;
+class AutoThrottleState;
 class TogaThrottleState;
 class TogaLkThrottleState;
 class IdleThrottleState;
+class IFlightInstrumentContext;
 
-
-class AutoThrottleState : public IState, public ThrottleEventHandler
+class AutoThrottleState : public CommonThrottleState
 {
 public:
     AutoThrottleState(IFiniteStateMachine& fsm, IFlightInstrumentContext& flightInstrumentContext);
     ~AutoThrottleState();
     void onEnter();
     void onExit();
-    void onEvent(SpeedChangeEvent& event);
-    void onEvent(LeverChangeEvent& event);
     void onEvent(FdChangeEvent& event);
-    void onEvent(PowerModeChangeEvent& event);
-    void onEvent(EffectiveStallSpeedChangeEvent& event);
     void setTargetStateInstances(ManualThrottleState& manualThrottleState, TogaThrottleState& togaThrottleState,
         TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState);
 private:
     void controlLoop();
-
-    IFiniteStateMachine& fsm;
-    IFlightInstrumentContext& flightInstrumentContext;
-    ManualThrottleState* manualThrottleState;
-    TogaThrottleState* togaThrottleState;
-    TogaLkThrottleState* togaLkThrottleState;
-    IdleThrottleState* idleThrottleState;
 
     bool pauseControlLoop;
     std::atomic<bool> exitControlLoop;

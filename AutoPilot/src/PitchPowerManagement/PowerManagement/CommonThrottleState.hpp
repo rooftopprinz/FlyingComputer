@@ -2,21 +2,20 @@
 #define AUTOPILOT_PITCHPOWERMANAGEMENT_POWERMANAGEMENT_COMMONTHROTTLESTATE_HPP_
 
 #include <src/StateMachine/StateMachine.hpp>
-#include "ThrottleEventHandler.hpp"
-#include "AutoThrottleState.hpp"
-#include "AutoThrottleState.hpp"
-#include "TogaThrottleState.hpp"
-#include "TogaLkThrottleState.hpp"
-#include "IdleThrottleState.hpp"
+#include "IThrottleEventHandler.hpp"
 
+class StateMachine;
+class CommonThrottleState;
 class ManualThrottleState;
 class AutoThrottleState;
 class TogaThrottleState;
 class TogaLkThrottleState;
 class IdleThrottleState;
 class IFlightInstrumentContext;
+class TogaLkThrottleState;
+class IdleThrottleState;
 
-class CommonThrottleState : public IState, public ThrottleEventHandler
+class CommonThrottleState : public IState, public IThrottleEventHandler
 {
 public:
     CommonThrottleState(IFiniteStateMachine& fsm,
@@ -32,7 +31,7 @@ public:
     void setTargetStateInstances(ManualThrottleState& manualThrottleState, AutoThrottleState& autoThrottleState,
         TogaThrottleState& togaThrottleState, TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState);
 
-private:
+protected:
     IFiniteStateMachine& fsm;
     IFlightInstrumentContext& flightInstrumentContext;
     ManualThrottleState* manualThrottleState;
