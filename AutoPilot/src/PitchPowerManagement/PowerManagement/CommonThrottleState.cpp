@@ -4,9 +4,7 @@
 
 #include "ManualThrottleState.hpp"
 #include "AutoThrottleState.hpp"
-#include "TogaThrottleState.hpp"
 #include "TogaLkThrottleState.hpp"
-#include "IdleThrottleState.hpp"
 
 #include "CommonThrottleState.hpp"
 
@@ -31,14 +29,7 @@ void CommonThrottleState::onEvent(SpeedChangeEvent& event)
 
 void CommonThrottleState::onEvent(LeverChangeEvent& event)
 {
-    if (event.lever == 1.0)
-    {
-        fsm.changeState(*togaThrottleState);
-    }
-    else if (event.lever == 1.0)
-    {
-        fsm.changeState(*idleThrottleState);
-    }
+    // TODO: adjust power setting directly on lever
 }
 
 void CommonThrottleState::onEvent(FdChangeEvent& event)
@@ -67,11 +58,9 @@ void CommonThrottleState::onEvent(EffectiveStallSpeedChangeEvent& event)
 }
 
 void CommonThrottleState::setTargetStateInstances(ManualThrottleState& manualThrottleState, AutoThrottleState& autoThrottleState,
-    TogaThrottleState& togaThrottleState, TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState)
+    TogaLkThrottleState& togaLkThrottleState)
 {
     this->manualThrottleState = &manualThrottleState;
     this->autoThrottleState = &autoThrottleState;
-    this->togaThrottleState = &togaThrottleState;
     this->togaLkThrottleState = &togaLkThrottleState;
-    this->idleThrottleState = &idleThrottleState;
 }

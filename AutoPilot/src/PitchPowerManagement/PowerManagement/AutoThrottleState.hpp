@@ -11,9 +11,7 @@
 class CommonThrottleState;
 class ManualThrottleState;
 class AutoThrottleState;
-class TogaThrottleState;
 class TogaLkThrottleState;
-class IdleThrottleState;
 class IFlightInstrumentContext;
 
 class AutoThrottleState : public CommonThrottleState
@@ -24,8 +22,6 @@ public:
     void onEnter();
     void onExit();
     void onEvent(FdChangeEvent& event);
-    void setTargetStateInstances(ManualThrottleState& manualThrottleState, TogaThrottleState& togaThrottleState,
-        TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState);
 private:
     void controlLoop();
 

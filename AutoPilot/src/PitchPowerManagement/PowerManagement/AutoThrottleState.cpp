@@ -38,15 +38,6 @@ void AutoThrottleState::onEvent(FdChangeEvent& event)
     // TODO: Differentiate from MANAGED and SELECTED mode.
 }
 
-void AutoThrottleState::setTargetStateInstances(ManualThrottleState& manualThrottleState, TogaThrottleState& togaThrottleState,
-    TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState)
-{
-    this->manualThrottleState = &manualThrottleState;
-    this->togaThrottleState = &togaThrottleState;
-    this->togaLkThrottleState = &togaLkThrottleState;
-    this->idleThrottleState = &idleThrottleState;
-}
-
 void AutoThrottleState::controlLoop()
 {
     while (true)

@@ -8,12 +8,8 @@ class StateMachine;
 class CommonThrottleState;
 class ManualThrottleState;
 class AutoThrottleState;
-class TogaThrottleState;
 class TogaLkThrottleState;
-class IdleThrottleState;
 class IFlightInstrumentContext;
-class TogaLkThrottleState;
-class IdleThrottleState;
 
 class CommonThrottleState : public IState, public IThrottleEventHandler
 {
@@ -29,16 +25,14 @@ public:
     void onEvent(PowerModeChangeEvent& event);
     void onEvent(EffectiveStallSpeedChangeEvent& event);
     void setTargetStateInstances(ManualThrottleState& manualThrottleState, AutoThrottleState& autoThrottleState,
-        TogaThrottleState& togaThrottleState, TogaLkThrottleState& togaLkThrottleState, IdleThrottleState& idleThrottleState);
+        TogaLkThrottleState& togaLkThrottleState);
 
 protected:
     IFiniteStateMachine& fsm;
     IFlightInstrumentContext& flightInstrumentContext;
     ManualThrottleState* manualThrottleState;
     AutoThrottleState* autoThrottleState;
-    TogaThrottleState* togaThrottleState;
     TogaLkThrottleState* togaLkThrottleState;
-    IdleThrottleState* idleThrottleState;
 };
 
 #endif

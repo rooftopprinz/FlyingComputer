@@ -6,9 +6,7 @@
 
 
 class AutoThrottleState;
-class TogaThrottleState;
 class TogaLkThrottleState;
-class IdleThrottleState;
 class IFlightInstrumentContext;
 
 class ManualThrottleState : public CommonThrottleState

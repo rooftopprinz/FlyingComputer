@@ -5,9 +5,7 @@
 #include "ThrottleEventHandler.hpp"
 #include "ManualThrottleState.hpp"
 #include "AutoThrottleState.hpp"
-#include "TogaThrottleState.hpp"
 #include "TogaLkThrottleState.hpp"
-#include "IdleThrottleState.hpp"
 
 class ThrottleFsm :  public IFiniteStateMachine, public ThrottleEventHandler
 {
@@ -22,9 +20,7 @@ private:
     IState *currentThrottleState;
     ManualThrottleState manualThrottleState;
     AutoThrottleState autoThrottleState;
-    TogaThrottleState togaThrottleState;
     TogaLkThrottleState togaLkThrottleState;
-    IdleThrottleState idleLkThrottleState;
 };
 
 #endif

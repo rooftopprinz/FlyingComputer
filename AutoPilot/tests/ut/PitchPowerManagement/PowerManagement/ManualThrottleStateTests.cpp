@@ -17,20 +17,18 @@ struct ManualThrottleStateTests : public ::testing::Test
 {
 
     ManualThrottleStateTests():
-        atState(fsmMock),
-        manState(fsmMock, fltInsCtxMock)
+        manState(fsmMock, fltInsCtxMock),
+        atState(fsmMock, fltInsCtxMock)
     {
-        manState.setTargetStateInstances(atState, tgState, tglState, idlState);
+        manState.setTargetStateInstances(manState, atState, tglState);
     }
 
     FiniteStateMachineMock fsmMock;
     FlightInstrumentContextMock fltInsCtxMock;
 
-    AutoThrottleState atState;
-    TogaThrottleState tgState;
-    TogaLkThrottleState tglState;
-    IdleThrottleState idlState;
     ManualThrottleState manState;
+    AutoThrottleState atState;
+    TogaLkThrottleState tglState;
 };
 
 TEST_F(ManualThrottleStateTests, shouldTransitToAthrWhenModeSelected)
@@ -45,13 +43,6 @@ TEST_F(ManualThrottleStateTests, shouldTransitToAthrWhenModeManaged)
     PowerModeChangeEvent pmch = {EPowerMode::MANAGED};
     EXPECT_CALL(fsmMock, changeState(Ref(atState)));
     manState.onEvent(pmch);
-}
-
-TEST_F(ManualThrottleStateTests, shouldTransitToga)
-{
-    LeverChangeEvent lvrCh = {1.0};
-    EXPECT_CALL(fsmMock, changeState(Ref(tgState)));
-    manState.onEvent(lvrCh);
 }
 
 TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenAirspeedSpeedLowers)
@@ -70,12 +61,4 @@ TEST_F(ManualThrottleStateTests, shouldTransitTogaLkWhenStallSpeedHighers)
     EXPECT_CALL(fltInsCtxMock, getIndicatedAirspeed())
         .WillOnce(Return(4.0));
     manState.onEvent(efStallSpdCh);
-}
-
-TEST_F(ManualThrottleStateTests, shouldTransitIdle)
-{
-    LeverChangeEvent lvrCh = {1.0};
-    EXPECT_CALL(fsmMock, changeState(Ref(tgState)));
-    manState.onEvent(lvrCh);
-
 }
