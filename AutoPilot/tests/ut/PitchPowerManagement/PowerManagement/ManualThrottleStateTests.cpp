@@ -15,7 +15,6 @@ using namespace testing;
 
 struct ManualThrottleStateTests : public ::testing::Test
 {
-
     ManualThrottleStateTests():
         manState(fsmMock, fltInsCtxMock),
         atState(fsmMock, fltInsCtxMock)
