@@ -1,0 +1,31 @@
+LORA
+
+
+Low Frequency Mode (RegOpMode):
+0 HF Mode (access to HF test registers)
+1 LF Mode (access to LF test registers)
+
+Device Modes (RegOpMode):
+000 SLEEP
+001 STDBY
+010 FSTX
+011 TX
+100 FSRX
+101 RXCONTINUOUS
+110 RXSINGLE
+111 CAD
+
+RF carrier frequency, Frf (RegFrMsb, RegFrMid, RegFrLsb):
+Fc = F(XOSC)*Frf/2^19
+
+
+Power Amplifier Select (RegPaConfig):
+0 RFO Pin, Output Power is limitted to +14 dBm
+1 PA_BOOST pin, Output Power is limitted to +20 dBm
+
+Max Power (RegPaConfig):
+Select max output power: Pmax=10.8+0.6*MaxPower [dBm]
+
+Outpout Power (RegPaConfig):
+Pout=Pmax-(15-OutputPower)  if PaSelect = 0 (RFO pin)
+Pout=17-(15-OutputPower)    if PaSelect = 1 (PA_BOOST pin)
