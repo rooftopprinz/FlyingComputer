@@ -9,5 +9,8 @@ struct ISpi
 
 struct IGpio
 {
+    virtual int setMode(unsigned gpio, unsigned mode) = 0;
+    virtual int get(unsigned gpio) = 0;
+    virtual int set(unsigned gpio, unsigned level) = 0;
     virtual int callback(unsigned userGpio, unsigned edge, std::function<void()> cb) = 0;
 };

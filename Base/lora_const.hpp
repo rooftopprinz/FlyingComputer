@@ -6,7 +6,7 @@ constexpr uint8_t RegOpMode                 = 0x01;
 constexpr uint8_t LongRangeModeMask         = 0b10000000;
 constexpr uint8_t AccessSharedRegMask       = 0b01000000; // AccessSharedReg
 constexpr uint8_t LowFrequencyModeOnMask    = 0b00001000; // LowFrequencyModeOn
-constexpr uint8_t ModeMask                  = 0b00000011; // Mode
+constexpr uint8_t ModeMask                  = 0b00000111; // Mode
 
 enum AccessSharedReg            // This bit operates when device is in Lora mode; if set it allows access to FSK registers page located in address space (0x0D:0x3F) while in LoRa mode.
 {
@@ -315,8 +315,8 @@ constexpr uint8_t RegInvertIQ               = 0x33;
 constexpr uint8_t InvertIQmASK              = 0x01000000; // Invert the LoRa I and Q signals
 
 
-// RegDetectionThreshold        0X37
-constexpr uint8_t RegDetectionThreshold     = 0X37;
+// RegDetectionThreshold        0x37
+constexpr uint8_t RegDetectionThreshold     = 0x37;
 
 enum DetectionThreshold         // LoRa detection threshold
 {
@@ -329,8 +329,8 @@ enum DetectionThreshold         // LoRa detection threshold
     SF_12 = 0xA                 // SF12
 };
 
-// RegSyncWord                  0X39
-constexpr uint8_t RegSyncWord               = 0X39; // LoRa Sync Word
+// RegSyncWord                  0x39
+constexpr uint8_t RegSyncWord               = 0x39; // LoRa Sync Word
 
 // RegDioMapping1               0x40
 constexpr uint8_t RegDioMapping1            = 0x40; // DIO Mapping for DIO3:DIO0
@@ -342,8 +342,8 @@ enum DioMapping1
     PayloadCrcError_FhssChangeChannel_CadDetected_CadDone
 };
 
-// RegDioMapping2               0X41
-constexpr uint8_t RegDioMapping2            = 0X41; // DIO Mapping for DIO5:DIO4
+// RegDioMapping2               0x41
+constexpr uint8_t RegDioMapping2            = 0x41; // DIO Mapping for DIO5:DIO4
 
 enum DioMapping1
 {
@@ -352,19 +352,19 @@ enum DioMapping1
     ClkOut_PllLock_2,
 }
 
-// RegVersion                   0X42
-constexpr uint8_t RegVersion                = 0X42; // Version
+// RegVersion                   0x42
+constexpr uint8_t RegVersion                = 0x42; // Version
 
-// RegPllHop                    0X42
-constexpr uint8_t RegPllHop                 = 0X42;
-constexpr uint8_t FastHopOnMask             = 0b10000000 // FastHopOn
+// RegPllHop                    0x42
+constexpr uint8_t RegPllHop                 = 0x42;
+constexpr uint8_t FastHopOnMask             = 0b10000000; // FastHopOn
 
-// RegTcxo                      0X4B
-constexpr uint8_t RegTcxo                   = 0X4B;
+// RegTcxo                      0x4B
+constexpr uint8_t RegTcxo                   = 0x4B;
 constexpr uint8_t TcxoInputOnMask           = 0b00001000;
 
-// RegPaDac                     0X4D
-constexpr uint8_t RegPaDac                  = 0X4D;
+// RegPaDac                     0x4D
+constexpr uint8_t RegPaDac                  = 0x4D;
 constexpr uint8_t PaDacMask                 = 0b00000011; // PaDac
 enum PaDac
 {
@@ -372,22 +372,22 @@ enum PaDac
     PA_BOOST = 7
 };
 
-// RegFormerTemp                0X5B
-constexpr uint8_t RegFormerTemp             = 0X5B; // LoRa Sync Word
+// RegFormerTemp                0x5B
+constexpr uint8_t RegFormerTemp             = 0x5B; // LoRa Sync Word
 
-// RegAgcRef                    0X61
-constexpr uint8_t RegAgcRef                 = 0X61;
+// RegAgcRef                    0x61
+constexpr uint8_t RegAgcRef                 = 0x61;
 constexpr uint8_t AgcReferenceLevelMask     = 0b00111111;
 
-// RegAgcThresh1                0X62
-constexpr uint8_t RegAgcThresh1             = 0X62; // Defines the 1st AGC Threshold
-// RegAgcThresh2                0X63
-constexpr uint8_t RegAgcThresh2             = 0X63; // Defines the 2nd AGC Threshold
-// RegAgcThresh3                0X64
-constexpr uint8_t RegAgcThresh3             = 0X64; // Defines the 3rd AGC Threshold
+// RegAgcThresh1                0x62
+constexpr uint8_t RegAgcThresh1             = 0x62; // Defines the 1st AGC Threshold
+// RegAgcThresh2                0x63
+constexpr uint8_t RegAgcThresh2             = 0x63; // Defines the 2nd AGC Threshold
+// RegAgcThresh3                0x64
+constexpr uint8_t RegAgcThresh3             = 0x64; // Defines the 3rd AGC Threshold
 
-//RegPll                        0X70
-constexpr uint8_t RegPll                    = 0X70;
+//RegPll                        0x70
+constexpr uint8_t RegPll                    = 0x70;
 constexpr uint8_t PllBandwidthMask          = 0b11000000;
 enum PllBandwidth
 {
@@ -396,3 +396,16 @@ enum PllBandwidth
     E_255KHZ,
     E_300KHZ
 };
+
+inline uint64_t getUnmasked(uint64_t mask, uint64_t value)
+{
+    for (; mask^1; mask = (mask>>1), value = (value>>1));
+    return mask&value;
+}
+
+inline uint64_t setMasked(uint64_t mask, uint64_t value)
+{
+    auto omask = mask;
+    for (; mask^1; mask = (mask>>1), value = (value<<1));
+    return value&omask;
+}
