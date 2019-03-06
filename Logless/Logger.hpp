@@ -15,18 +15,21 @@ using BufferLog = std::pair<uint16_t, void*>;
 
 #define _ static constexpr
 template<typename> struct TypeTraits;
-template<> struct TypeTraits<uint8_t>     {_ auto type_id = 0xa1; _ size_t size =  sizeof(uint8_t);     _ char cfmt[] = "%c";};
-template<> struct TypeTraits<int8_t>      {_ auto type_id = 0xa2; _ size_t size =  sizeof(int8_t);      _ char cfmt[] = "%c";};
-template<> struct TypeTraits<uint16_t>    {_ auto type_id = 0xa3; _ size_t size =  sizeof(uint16_t);    _ char cfmt[] = "%u";};
-template<> struct TypeTraits<int16_t>     {_ auto type_id = 0xa4; _ size_t size =  sizeof(int16_t);     _ char cfmt[] = "%d";};
-template<> struct TypeTraits<uint32_t>    {_ auto type_id = 0xa5; _ size_t size =  sizeof(uint32_t);    _ char cfmt[] = "%u";};
-template<> struct TypeTraits<int32_t>     {_ auto type_id = 0xa6; _ size_t size =  sizeof(int32_t);     _ char cfmt[] = "%d";};
-template<> struct TypeTraits<uint64_t>    {_ auto type_id = 0xa7; _ size_t size =  sizeof(uint64_t);    _ char cfmt[] = "%ld";};
-template<> struct TypeTraits<int64_t>     {_ auto type_id = 0xa8; _ size_t size =  sizeof(int64_t);     _ char cfmt[] = "%lu";};
-template<> struct TypeTraits<float>       {_ auto type_id = 0xa9; _ size_t size =  sizeof(float);       _ char cfmt[] = "%f";};
-template<> struct TypeTraits<double>      {_ auto type_id = 0xaa; _ size_t size =  sizeof(double);      _ char cfmt[] = "%f";};
-template<> struct TypeTraits<void*>       {_ auto type_id = 0xab; _ size_t size =  sizeof(void*);       _ char cfmt[] = "%p";};
-template<> struct TypeTraits<BufferLog>   {_ auto type_id = 0xac; _ size_t size = 0;                    _ char cfmt[] = "%s";};
+template<> struct TypeTraits<unsigned char>      {_ auto type_id = 0xa1; _ size_t size =  sizeof(unsigned char);      _ char cfmt[] = "%c";};
+template<> struct TypeTraits<signed char>        {_ auto type_id = 0xa2; _ size_t size =  sizeof(signed char);        _ char cfmt[] = "%c";};
+template<> struct TypeTraits<unsigned short>     {_ auto type_id = 0xa3; _ size_t size =  sizeof(unsigned short);     _ char cfmt[] = "%u";};
+template<> struct TypeTraits<short>              {_ auto type_id = 0xa4; _ size_t size =  sizeof(short);              _ char cfmt[] = "%d";};
+template<> struct TypeTraits<unsigned int>       {_ auto type_id = 0xa5; _ size_t size =  sizeof(unsigned int);       _ char cfmt[] = "%u";};
+template<> struct TypeTraits<int>                {_ auto type_id = 0xa6; _ size_t size =  sizeof(int);                _ char cfmt[] = "%d";};
+template<> struct TypeTraits<unsigned long>      {_ auto type_id = 0xa7; _ size_t size =  sizeof(unsigned long);      _ char cfmt[] = "%ld";};
+template<> struct TypeTraits<long>               {_ auto type_id = 0xa8; _ size_t size =  sizeof(long);               _ char cfmt[] = "%lu";};
+template<> struct TypeTraits<unsigned long long> {_ auto type_id = 0xa9; _ size_t size =  sizeof(unsigned long long); _ char cfmt[] = "%lld";};
+template<> struct TypeTraits<long long>          {_ auto type_id = 0xaa; _ size_t size =  sizeof(long long);          _ char cfmt[] = "%llu";};
+template<> struct TypeTraits<float>              {_ auto type_id = 0xab; _ size_t size =  sizeof(float);              _ char cfmt[] = "%f";};
+template<> struct TypeTraits<double>             {_ auto type_id = 0xac; _ size_t size =  sizeof(double);             _ char cfmt[] = "%f";};
+template<> struct TypeTraits<void*>              {_ auto type_id = 0xad; _ size_t size =  sizeof(void*);              _ char cfmt[] = "%p";};
+template<> struct TypeTraits<BufferLog>          {_ auto type_id = 0xae; _ size_t size = 0;                           _ char cfmt[] = "%s";};
+template<> struct TypeTraits<const char*>        {_ auto type_id = 0xaf; _ size_t size = 0;                           _ char cfmt[] = "%p";};
 #undef _
 
 template <typename... Ts>
@@ -42,7 +45,7 @@ struct TotalSize<>
 };
 
 
-std::string toHexString(const uint8_t* pData, size_t size)
+inline std::string toHexString(const uint8_t* pData, size_t size)
 {
     std::stringstream ss;;
     for (size_t i=0; i<size; i++)
@@ -65,7 +68,7 @@ public:
         if (mLogful)
         {
             uint8_t logbuff[4096];
-            int flen = std::sprintf((char*)logbuff, "%luus %lut ", pTime, pThread);
+            int flen = std::sprintf((char*)logbuff, "%lluus %llut ", (unsigned long long)pTime, (unsigned long long)pThread);
             size_t sz = logful(logbuff + flen, id, ts...) + flen;
             logbuff[sz++] = '\n';
             ::write(1, logbuff, sz);
@@ -80,6 +83,7 @@ public:
             size_t sz = logless(usedBuffer, usedIdx, pTime, pThread, ts...) + sizeof(HeaderType);
             std::fwrite((char*)usedBuffer, 1, sz, mOutputFile);
         }
+        flush();
     }
     void logful()
     {
@@ -89,12 +93,15 @@ public:
     {
         mLogful = false;
     }
+    void flush()
+    {
+        std::fflush(mOutputFile);
+    }
     static Logger& getInstance()
     {
         static Logger logger{};
         return logger;
     }
-
 private:
 
     Logger()
@@ -105,6 +112,7 @@ private:
 
     ~Logger()
     {
+        std::cout << "Logger::~Logger\n";
         std::fclose(mOutputFile);
     }
 
@@ -163,6 +171,25 @@ private:
         return sglen + flen + logful(pOut, pMsg, ts...);
     }
 
+    template<typename... Ts>
+    size_t logful(uint8_t* pOut, const char* pMsg, const char *t, Ts... ts)
+    {
+        const char *nTok = findNextToken('_',pMsg);
+        size_t sglen = uintptr_t(nTok)-uintptr_t(pMsg);
+        std::memcpy(pOut, pMsg, sglen);
+        pMsg+=sglen;
+        pOut+=sglen;
+        int flen = 0;
+        if (*nTok)
+        {
+            auto s = std::string_view(t, std::strlen(t));
+            std::memcpy(pOut, s.data(), s.size());
+            flen += s.size();
+            pMsg++;
+        }
+        if (flen>0) pOut += flen;
+        return sglen + flen + logful(pOut, pMsg, ts...);
+    }
 
     size_t logless(uint8_t* pUsedBuffer, int& pUsedIndex)
     {
@@ -192,9 +219,23 @@ private:
         return logless(pUsedBuffer, pUsedIndex, ts...) + sizeof(TagType) + sizeof(BufferLog::first_type) + t.first;
     }
 
+    template<typename... Ts>
+    size_t logless(uint8_t* pUsedBuffer, int& pUsedIndex, const char* t, Ts... ts)
+    {
+        new (pUsedBuffer + pUsedIndex) TagType(TypeTraits<const char*>::type_id);
+        pUsedIndex += sizeof(TagType);
+        size_t tlen = strlen(t);
+        new (pUsedBuffer + pUsedIndex) BufferLog::first_type(tlen);
+        pUsedIndex += sizeof(BufferLog::first_type);
+        std::memcpy(pUsedBuffer + pUsedIndex, t, tlen);
+        pUsedIndex += tlen;
+        return logless(pUsedBuffer, pUsedIndex, ts...) + sizeof(TagType) + sizeof(BufferLog::first_type) + tlen;
+    }
+
+
     std::FILE* mOutputFile;
     bool mLogful = false;
-    static constexpr const char* LoggerRef = "LoggerRefXD";
+    static const char* LoggerRef;
 };
 
 template <typename... Ts>

@@ -29,10 +29,10 @@ public:
     int run();
 
 private:
+    net::IpPort mCtrlAddr;
     std::unique_ptr<net::ISocket> mCtrlSock;
-    std::unique_ptr<net::ISocket> mIoSock;
     std::shared_ptr<hwapi::ISpi>  mSpi;
-    std::shared_ptr<hwapi::I2C>   mI2C;
+    std::shared_ptr<hwapi::II2C>   mI2C;
     std::shared_ptr<hwapi::IGpio> mGpio;
 };
 

@@ -46,69 +46,23 @@ net::IpPort Args::parseIpPort(std::string pKey, net::IpPort pDefault) const
 }
 
 App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
-    : mChannel(pArgs.getChannel())
-    , mCtrlAddr(pArgs.getCtrlAddr())
-    , mMode(pArgs.isTx()? Mode::TX : Mode::RX)
-    , mIoAddr(pArgs.getIoAddr())
-    , mCarrier(pArgs.getCarrier())
-    , mBw(pArgs.getBw())
-    , mCr(pArgs.getCr())
-    , mSf(pArgs.getSf())
-    , mMtu(pArgs.getMtu())
-    , mTxPower(pArgs.getTxPower())
-    , mRxGain(pArgs.getLnaGain())
-    , mResetPin(pArgs.getResetPin())
-    , mDio1Pin(pArgs.getGetDio1Pin())
+    : mCtrlAddr(pArgs.getCtrlAddr())
     , mCtrlSock(pUdpFactory.create())
-    , mIoSock(pUdpFactory.create())
-    , mSpi(hwapi::getSpi(mChannel))
-    , mGpio(hwapi::getGpio())
-    , mModule(*mSpi, *mGpio, mResetPin, mDio1Pin)
-    , mLogger("App")
 {
-    mLogger << logger::DEBUG << "-------------- Parameters ---------------";
-    mLogger << logger::DEBUG << "channel:         " << mChannel;
-    mLogger << logger::DEBUG << "Mode:            " << ((const char*[]){"TX", "RX"})[int(mMode)];
-    mLogger << logger::DEBUG << "Control Address: "
-        << ((mCtrlAddr.addr>>24)&0xFF) << "."
-        << ((mCtrlAddr.addr>>16)&0xFF) << "."
-        << ((mCtrlAddr.addr>>8)&0xFF) << "."
-        << (mCtrlAddr.addr&0xFF) << ":"
-        << (mCtrlAddr.port);
-    mLogger << logger::DEBUG << "TX/RX Address:   "
-        << ((mIoAddr.addr>>24)&0xFF) << "."
-        << ((mIoAddr.addr>>16)&0xFF) << "."
-        << ((mIoAddr.addr>>8)&0xFF) << "."
-        << (mIoAddr.addr&0xFF) << ":"
-        << (mIoAddr.port);
-    mLogger << logger::DEBUG << "Carrier:         " << mCarrier << " Hz";
-    mLogger << logger::DEBUG << "bandwidth:       " <<
-        ((const char*[]){"7.8", "10.4", "15.6", "20.8", "31.25", "41.7", "62.5", "125", "250", "500",})[int(mBw)] << " kHz";
-    mLogger << logger::DEBUG << "Coding Rate:     " <<
-        ((const char*[]){0, "4/5", "4/6", "4/7", "4/8"})[int(mCr)];
-    mLogger << logger::DEBUG << "Spread Factor:   " <<
-        ((const char*[]){0,0,0,0,0,0,"SF6", "SF7", "SF8", "SF9", "SF10", "SF11", "SF12"})[int(mSf)];
-    mLogger << logger::DEBUG << "MTU:             " << mMtu;
-    mLogger << logger::DEBUG << "Tx Power:        " << mTxPower;
-    mLogger << logger::DEBUG << "Rx Gain:         " <<
-        ((const char*[]){"", "G1", "G2", "G3", "G4", "G5", "G6"})[int(mRxGain)];
-    mLogger << logger::DEBUG << "Reset Pin:       " << mResetPin;
-    mLogger << logger::DEBUG << "TX/RX Done Pin:  " << mDio1Pin;
+    Logless("App::App ------------- Parameters ---------------");
+    Logless("App::App control address: _._._._:_",
+        ((mCtrlAddr.addr>>24)&0xFF),
+        ((mCtrlAddr.addr>>16)&0xFF),
+        ((mCtrlAddr.addr>>8)&0xFF),
+        (mCtrlAddr.addr&0xFF),
+        (mCtrlAddr.port));
 
     mCtrlSock->bind(mCtrlAddr);
-    if (Mode::TX == mMode)
-    {
-        mIoSock->bind(mIoAddr);
-    }
-    else
-    {
-        mIoSock->bind({});
-    }
 }
 
 int App::run()
 {
+    return 0;
 }
-
 
 } // namespace app

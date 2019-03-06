@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <regex>
-#include <Logless.hpp>
+#include <Logger.hpp>
 #include <IHwApi.hpp>
 #include <App.hpp>
 
@@ -23,6 +23,8 @@ int main(int argc, const char* argv[])
             throw std::runtime_error(std::string("invalid argument: `") + argv[i] + "`");
         }
     }
+
+    Logger::getInstance().logful();
 
     std::unique_ptr<net::IUdpFactory> udpFactory = std::make_unique<net::UdpFactory>();
     app::Args args(options);
