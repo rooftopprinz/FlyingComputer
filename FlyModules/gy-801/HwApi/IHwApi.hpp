@@ -17,7 +17,7 @@ struct ISpi
 
 struct II2C
 {
-    virtual int writBlock(unsigned reg, uint8_t* buf, unsigned count) = 0;
+    virtual int writeBlock(unsigned reg, uint8_t* buf, unsigned count) = 0;
     virtual int readBlock(unsigned reg, uint8_t* buf, unsigned count) = 0;
 };
 
@@ -42,8 +42,7 @@ struct IGpio
     virtual int deregisterCallback(int pCallbackId) = 0;
 };
 
-std::shared_ptr<ISpi>  getSpi(uint8_t channel);
-std::shared_ptr<IGpio> getGpio();
+std::shared_ptr<II2C>  getI2C(uint8_t address);
 void setup();
 void teardown();
 

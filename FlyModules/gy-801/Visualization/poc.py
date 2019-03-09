@@ -9,28 +9,40 @@ from matplotlib.animation import FuncAnimation
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.settimeout(0.01)
+sock.settimeout(1)
 
 fig, ax = plt.subplots()
-xdata, ydata = [], []
-ln, = plt.plot([], [], 'r-')
+xdata = []
+ydata = []
+zdata = []
+tdata = []
+
+lnx, = plt.plot([], [], 'r-')
+lny, = plt.plot([], [], 'g-')
+lnz, = plt.plot([], [], 'b-')
 
 def update(frame):
     try:
         sock.sendto("xx", ("192.168.43.212",9999))
         data, addr = sock.recvfrom(1024)
-        print "data", data
-        y, x = struct.unpack("dd", data);
+
+        t = time.time()
+        x, y, z = struct.unpack("fff", data);
+        print "(" + str(x) + "," + str(y) + "," + str(z) + ","+ str(t) +")"
         xdata.append(x)
         ydata.append(y)
+        zdata.append(z)
+        tdata.append(t)
 
         ax.relim()
         ax.autoscale_view()
-        ln.set_data(xdata, ydata)
-        return ln,
+        lnx.set_data(tdata, xdata)
+        lny.set_data(tdata, ydata)
+        lnz.set_data(tdata, zdata)
+        return [lnx,lny,lnz]
     except:
         print "timeout"
-    return ln
+    return [lnx,lny,lnz]
 
 ani = FuncAnimation(fig, update, frames=range(10000), repeat=False, interval=10)
 plt.show()
