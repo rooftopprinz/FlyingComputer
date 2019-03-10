@@ -34,6 +34,12 @@ def update(frame):
         zdata.append(z)
         tdata.append(t)
 
+        if (50==len(xdata)):
+            xdata.pop(0)
+            ydata.pop(0)
+            zdata.pop(0)
+            tdata.pop(0)
+
         ax.relim()
         ax.autoscale_view()
         lnx.set_data(tdata, xdata)
@@ -44,5 +50,5 @@ def update(frame):
         print "timeout"
     return [lnx,lny,lnz]
 
-ani = FuncAnimation(fig, update, frames=range(10000), repeat=False, interval=10)
+ani = FuncAnimation(fig, update, frames=range(10000), repeat=False, interval=100)
 plt.show()

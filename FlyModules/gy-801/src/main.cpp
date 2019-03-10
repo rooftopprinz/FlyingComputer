@@ -24,7 +24,7 @@ int main(int argc, const char* argv[])
         }
     }
 
-    Logger::getInstance().logful();
+    Logger::getInstance().logless();
 
     std::unique_ptr<net::IUdpFactory> udpFactory = std::make_unique<net::UdpFactory>();
     app::Args args(options);

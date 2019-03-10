@@ -67,28 +67,36 @@ App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
 
 int App::gyroLoop()
 {
+    uint64_t tpoint = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     while(1)
     {
-        auto sz = mGyro.read(mXLwss,mXHwss,mYLwss,mYHwss,mZLwss,mZHwss);
-        double deltaT = 0.038/sz;
-        for (auto i=0; i<sz; i++)
-        {
-            int16_t x = (mXLwss[i] << 8) | mXHwss[i];
-            int16_t y = (mYLwss[i] << 8) | mYHwss[i];
-            int16_t z = (mZLwss[i] << 8) | mZHwss[i];
-            float oldXws = mXws;
-            float oldYws = mYws;
-            float oldZws = mZws;
-            mXws = x*2000.0/32767;
-            mYws = y*2000.0/32767;
-            mZws = z*2000.0/32767;
-            mX = (mXws-oldXws)*deltaT;
-            mY = (mYws-oldYws)*deltaT;
-            mZ = (mZws-oldZws)*deltaT;
-        }
-
         using namespace std::literals::chrono_literals;
-        std::this_thread::sleep_for(38ms);
+        std::this_thread::sleep_for(10ms);
+        size_t sz = mGyro.read(mXYZws);
+
+        uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+        uint64_t diff = tnow-tpoint;
+        tpoint = tnow;
+        double deltaT = double(diff)/1000000.0;
+        Logless("App::gyroLoop TDIFF=_ ms", deltaT*1000.0);
+        deltaT = deltaT/sz;
+        for (size_t i=0; i<sz; i++)
+        {
+            int16_t x = (mXYZws[i*6+0]) | (mXYZws[i*6+1]<<8);
+            int16_t y = (mXYZws[i*6+2]) | (mXYZws[i*6+3]<<8);
+            int16_t z = (mXYZws[i*6+4]) | (mXYZws[i*6+5]<<8);
+            // Logless("App::gyroLoop _ ms [_](_ _ _) _ _ _", deltaT, i,
+            //     BufferLog(2, &x),
+            //     BufferLog(2, &y),
+            //     BufferLog(2, &z),
+            //     x, y, z);
+            {
+                std::unique_lock<std::mutex> ulock(mXYZlock);   
+                mX += x*deltaT*2000.0/32767;
+                mY += y*deltaT*2000.0/32767;
+                mZ += z*deltaT*2000.0/32767;
+            }
+        }
     }
 }
 
@@ -100,9 +108,19 @@ int App::run()
     {
         net::IpPort src;
         mCtrlSock->recvfrom(recvbuffer, src);
-        new (sendbuffer.data()+sizeof(float)*0) float(mZ);
-        new (sendbuffer.data()+sizeof(float)*1) float(mY);
-        new (sendbuffer.data()+sizeof(float)*2) float(mX);
+        float lZ;
+        float lY;
+        float lX;
+        {
+            std::unique_lock<std::mutex> ulock(mXYZlock);
+            lZ = float(mZ);
+            lY = float(mY);
+            lX = float(mX);
+        }
+        new (sendbuffer.data()+sizeof(float)*0) float(lZ);
+        new (sendbuffer.data()+sizeof(float)*1) float(lY);
+        new (sendbuffer.data()+sizeof(float)*2) float(lX);
+        Logless("App::run (_,_,_)", lX, lY, lZ);
         common::Buffer tosend(sendbuffer.data(), sizeof(float)*3, false);
         mCtrlSock->sendto(tosend, src);
     }

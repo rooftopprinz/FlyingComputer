@@ -207,11 +207,10 @@ public:
 
         uint8_t ctrl = setMasked(DRMASK, (unsigned)pDataRate) | setMasked(BWMASK, (unsigned)pBandwidth)|POWERDOWNMASK|ZENMASK|YENMASK|XENMASK;
         setRegister(REGCTLR1, ctrl);
-        ctrl = setMasked(BDUMASK, true)|setMasked(FSSELMASK, (unsigned)FullScaleSelect::FS_2000dps);
+        ctrl = setMasked(FSSELMASK, (unsigned)FullScaleSelect::FS_2000dps)|BDUMASK;
         setRegister(REGCTLR4, ctrl);
         ctrl = setMasked(FIFOENMASK, true)|setMasked(OUTSELMASK, (unsigned)OutputSelection::LPF1);
         setRegister(REGCTLR5, ctrl);
-        bypass();
     }
 
     void bypass()
@@ -226,19 +225,23 @@ public:
         setRegister(REGFIFOCTRL, ctrl);
     }
 
-    ssize_t read(uint8_t* pDataXL,uint8_t* pDataXH, uint8_t* pDataYL, uint8_t* pDataYH, uint8_t* pDataZL, uint8_t* pDataZH)
+    size_t read(uint8_t* pDataXYZ)
     {
         Logless("L3G4200D::read READ FIFO");
         uint8_t src = getRegister(REGFIFOSRC);
-        uint8_t sz = getUnmasked(FIFOCOUNT, src);
+        uint8_t sz = getUnmasked(FIFOCOUNT, src)+1;
+        const size_t rc = (sz/5) + !!(sz%5);
 
-        getRegister(REGOZL, pDataZL, sz);
-        getRegister(REGOZH, pDataZH, sz);
-        getRegister(REGOYL, pDataYL, sz);
-        getRegister(REGOYH, pDataYH, sz);
-        getRegister(REGOXL, pDataXL, sz);
-        getRegister(REGOXH, pDataXH, sz);
-
+        for (size_t i=0; i<rc; i++)
+        {
+            size_t rsz = 30;
+            if (i==(rc-1) && !!(sz%5))
+            {
+                rsz = (sz%5)*6;
+            }
+            getRegister(REGOXL|0x80, pDataXYZ+30*i, rsz);
+        }
+        getRegister(REGFIFOSRC);
         bypass();
         fifo();
         return sz;

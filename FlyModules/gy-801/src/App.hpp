@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include <regex>
 #include <L3G4200D.hpp>
 #include <IHwApi.hpp>
@@ -39,18 +40,12 @@ private:
     std::shared_ptr<hwapi::II2C>   mI2CGyro;
     l3g4200d::L3G4200D mGyro;
     std::thread mGyroLoop;
-    uint8_t mZLwss[32];
-    uint8_t mZHwss[32];
-    uint8_t mYLwss[32];
-    uint8_t mYHwss[32];
-    uint8_t mXLwss[32];
-    uint8_t mXHwss[32];
-    std::atomic<float>   mZws = 0.0;
-    std::atomic<float>   mYws = 0.0;
-    std::atomic<float>   mXws = 0.0;
-    std::atomic<float>   mZ   = 0.0;
-    std::atomic<float>   mY   = 0.0;
-    std::atomic<float>   mX   = 0.0;
+    uint8_t mXYZws[32*3*2];
+
+    float mZ   = 0.0;
+    float mY   = 0.0;
+    float mX   = 0.0;
+    std::mutex mXYZlock;
 };
 
 }
