@@ -207,7 +207,10 @@ public:
 
         uint8_t ctrl = setMasked(DRMASK, (unsigned)pDataRate) | setMasked(BWMASK, (unsigned)pBandwidth)|POWERDOWNMASK|ZENMASK|YENMASK|XENMASK;
         setRegister(REGCTLR1, ctrl);
-        ctrl = setMasked(FSSELMASK, (unsigned)FullScaleSelect::FS_2000dps)|BDUMASK;
+        // ctrl = setMasked(HPCMASK, 0b0110);
+        // setRegister(REGCTLR2, ctrl);
+        // getRegister(REGREF);
+        ctrl = setMasked(FSSELMASK, (unsigned)FullScaleSelect::FS_500dps)|BDUMASK;
         setRegister(REGCTLR4, ctrl);
         ctrl = setMasked(FIFOENMASK, true)|setMasked(OUTSELMASK, (unsigned)OutputSelection::LPF1);
         setRegister(REGCTLR5, ctrl);

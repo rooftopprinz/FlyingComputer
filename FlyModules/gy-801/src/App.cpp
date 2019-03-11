@@ -61,7 +61,7 @@ App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
         (mCtrlAddr.port));
 
     mCtrlSock->bind(mCtrlAddr);
-    mGyro.configure(l3g4200d::DataRate::DR_800HZ, l3g4200d::Bandwidth::BW_HIGH);
+    mGyro.configure(l3g4200d::DataRate::DR_100HZ, l3g4200d::Bandwidth::BW_HIGH);
     mGyroLoop = std::thread(&App::gyroLoop, this);
 }
 
@@ -71,7 +71,7 @@ int App::gyroLoop()
     while(1)
     {
         using namespace std::literals::chrono_literals;
-        std::this_thread::sleep_for(10ms);
+        std::this_thread::sleep_for(30ms);
         size_t sz = mGyro.read(mXYZws);
 
         uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
