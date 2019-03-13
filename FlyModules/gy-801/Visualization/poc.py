@@ -34,7 +34,7 @@ def update(frame):
         zdata.append(z)
         tdata.append(t)
 
-        if (50==len(xdata)):
+        if (200==len(xdata)):
             xdata.pop(0)
             ydata.pop(0)
             zdata.pop(0)

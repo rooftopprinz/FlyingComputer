@@ -62,41 +62,82 @@ App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
 
     mCtrlSock->bind(mCtrlAddr);
     mGyro.configure(l3g4200d::DataRate::DR_100HZ, l3g4200d::Bandwidth::BW_HIGH);
-    mGyroLoop = std::thread(&App::gyroLoop, this);
+    mGyroLoop = std::thread(&App::sensorLoop, this);
 }
 
-int App::gyroLoop()
+void App::calibrateGyro()
 {
-    uint64_t tpoint = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    mGyro.bypass();
+    mGyro.fifo();
+
+    mGyroDcOffsetZ = 0.0;
+    mGyroDcOffsetY = 0.0;
+    mGyroDcOffsetX = 0.0;
+
+    size_t i=0;
+    while (i<100)
+    {
+        using namespace std::literals::chrono_literals;
+        std::this_thread::sleep_for(250ms); // TODO: Base it on ODR 
+        size_t sz = mGyro.read((uint8_t*)&mXYZws);
+        uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+        uint64_t diff = tnow-mGyroLastSampleTime;
+        double deltaT = double(diff)/1000000.0;
+        mGyroLastSampleTime = tnow;
+        deltaT = deltaT/sz;
+        // constexpr double DPS = 500.0;
+        for (size_t j=0; j<sz; j++, i++)
+        {
+            Logless("App::calibrateGyro i=_ diff=_ s x=_ y=_ z=_ ", i, deltaT, mXYZws[j].x, mXYZws[j].y, mXYZws[j].z);
+            mGyroDcOffsetZ += mXYZws[j].z;
+            mGyroDcOffsetY += mXYZws[j].y;
+            mGyroDcOffsetX += mXYZws[j].x;
+        }
+    }
+
+    mGyroDcOffsetZ /= i;
+    mGyroDcOffsetY /= i;
+    mGyroDcOffsetX /= i;
+
+    Logless("App::calibrateGyro DCBIAS=(_ _ _)",
+        mGyroDcOffsetX,
+        mGyroDcOffsetY,
+        mGyroDcOffsetZ);
+}
+
+void App::readGyro()
+{
+    static double sensorTime = 0.0;
+    size_t sz = mGyro.read((uint8_t*)&mXYZws);
+    uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    uint64_t diff = tnow-mGyroLastSampleTime;
+    mGyroLastSampleTime = tnow;
+    double deltaT = double(diff)/1000000.0;
+    // Logless("App::sensorLoop TDIFF=_ ms size=_", deltaT*1000.0, sz);
+    deltaT = deltaT/sz;
+    constexpr double DPS = 500.0;
+    for (size_t i=0; i<sz; i++)
+    {
+        Logless("App::readGyro diff=_ s t=_ s x=_ y=_ z=_ ", deltaT, sensorTime, mXYZws[i].x, mXYZws[i].y, mXYZws[i].z);
+        {
+            sensorTime += deltaT;
+            std::unique_lock<std::mutex> ulock(mXYZlock);   
+            mX += ((mXYZws[i].x-mGyroDcOffsetX)*deltaT*DPS/32767);
+            mY += ((mXYZws[i].y-mGyroDcOffsetY)*deltaT*DPS/32767);
+            mZ += ((mXYZws[i].z-mGyroDcOffsetZ)*deltaT*DPS/32767);
+        }
+    }
+}
+
+int App::sensorLoop()
+{
+    mGyroLastSampleTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    calibrateGyro();
     while(1)
     {
         using namespace std::literals::chrono_literals;
-        std::this_thread::sleep_for(30ms);
-        size_t sz = mGyro.read(mXYZws);
-
-        uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-        uint64_t diff = tnow-tpoint;
-        tpoint = tnow;
-        double deltaT = double(diff)/1000000.0;
-        Logless("App::gyroLoop TDIFF=_ ms", deltaT*1000.0);
-        deltaT = deltaT/sz;
-        for (size_t i=0; i<sz; i++)
-        {
-            int16_t x = (mXYZws[i*6+0]) | (mXYZws[i*6+1]<<8);
-            int16_t y = (mXYZws[i*6+2]) | (mXYZws[i*6+3]<<8);
-            int16_t z = (mXYZws[i*6+4]) | (mXYZws[i*6+5]<<8);
-            // Logless("App::gyroLoop _ ms [_](_ _ _) _ _ _", deltaT, i,
-            //     BufferLog(2, &x),
-            //     BufferLog(2, &y),
-            //     BufferLog(2, &z),
-            //     x, y, z);
-            {
-                std::unique_lock<std::mutex> ulock(mXYZlock);   
-                mX += x*deltaT*2000.0/32767;
-                mY += y*deltaT*2000.0/32767;
-                mZ += z*deltaT*2000.0/32767;
-            }
-        }
+        std::this_thread::sleep_for(250ms); // TODO: Base it on ODR 
+        readGyro();
     }
 }
 

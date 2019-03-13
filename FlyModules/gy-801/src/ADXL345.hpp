@@ -50,7 +50,7 @@ constexpr uint8_t LOWPOWERMASK   = 0b00010000;
 constexpr uint8_t RATEMASK       = 0b00001111;
 enum class Bandwidth
 {
-
+    BW_0p05HZ
 };
 constexpr uint8_t REGPOWERCTL    = 0x2D;
 constexpr uint8_t LINKMASK       = 0b00100000;

@@ -230,7 +230,7 @@ public:
 
     size_t read(uint8_t* pDataXYZ)
     {
-        Logless("L3G4200D::read READ FIFO");
+        // Logless("L3G4200D::read READ FIFO");
         uint8_t src = getRegister(REGFIFOSRC);
         uint8_t sz = getUnmasked(FIFOCOUNT, src)+1;
         const size_t rc = (sz/5) + !!(sz%5);

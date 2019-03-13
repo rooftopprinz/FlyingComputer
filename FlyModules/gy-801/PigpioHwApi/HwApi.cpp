@@ -44,13 +44,13 @@ public:
     int writeBlock(unsigned pReg, uint8_t* pBuf, unsigned pCount)
     {
         int rv = i2c_write_i2c_block_data(gGpioHandle, mHandle, pReg, (char*)pBuf, pCount);
-        Logless("DBG I2C::writBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
+        // Logless("DBG I2C::writBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
         return rv;
     }
     int readBlock(unsigned pReg, uint8_t* pBuf, unsigned pCount)
     {
         int rv = i2c_read_i2c_block_data(gGpioHandle, mHandle, pReg, (char*)pBuf, pCount);
-        Logless("DBG I2C::readBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
+        // Logless("DBG I2C::readBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
         return rv;
     }
 private:

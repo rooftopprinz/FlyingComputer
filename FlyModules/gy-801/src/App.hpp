@@ -26,6 +26,13 @@ private:
     const Options& mOptions;
 };
 
+struct XYZ
+{
+    int16_t x;
+    int16_t y;
+    int16_t z;
+};
+
 class App
 {
 public:
@@ -33,19 +40,26 @@ public:
     int run();
 
 private:
-    int gyroLoop();
+    int sensorLoop();
+    void calibrateGyro();
+    void readGyro();
 
     net::IpPort mCtrlAddr;
     std::unique_ptr<net::ISocket> mCtrlSock;
+
+    // Gyro
     std::shared_ptr<hwapi::II2C>   mI2CGyro;
     l3g4200d::L3G4200D mGyro;
     std::thread mGyroLoop;
-    uint8_t mXYZws[32*3*2];
-
-    float mZ   = 0.0;
-    float mY   = 0.0;
-    float mX   = 0.0;
+    XYZ mXYZws[32];
+    float mZ = 0.0;
+    float mY = 0.0;
+    float mX = 0.0;
+    int64_t mGyroDcOffsetZ = 0;
+    int64_t mGyroDcOffsetY = 0;
+    int64_t mGyroDcOffsetX = 0;
     std::mutex mXYZlock;
+    uint64_t mGyroLastSampleTime = 0;
 };
 
 }
