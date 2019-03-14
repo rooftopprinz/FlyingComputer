@@ -48,10 +48,26 @@ constexpr uint8_t TAPZSRCMASK    = 0b00000001;
 constexpr uint8_t REGBWRATE      = 0x2C;
 constexpr uint8_t LOWPOWERMASK   = 0b00010000;
 constexpr uint8_t RATEMASK       = 0b00001111;
-enum class Bandwidth
+enum class DataRate
 {
-    BW_0p05HZ
+    DR_0p10HZ,
+    DR_0p20HZ,
+    DR_0p39HZ,
+    DR_0p78HZ,
+    DR_1p56HZ,
+    DR_3p13HZ,
+    DR_6p26HZ,
+    DR_12p5HZ,
+    DR_25p0HZ,
+    DR_50p0HZ,
+    DR_100p0HZ,
+    DR_200p0HZ,
+    DR_400p0HZ,
+    DR_800p0HZ,
+    DR_1600p0HZ,
+    DR_3200p0HZ
 };
+
 constexpr uint8_t REGPOWERCTL    = 0x2D;
 constexpr uint8_t LINKMASK       = 0b00100000;
 constexpr uint8_t AUTOSLEEPMASK  = 0b00010000;
@@ -96,7 +112,8 @@ constexpr uint8_t REGDATAZ1      = 0x37;
 constexpr uint8_t REGFIFOCTL     = 0x38;
 constexpr uint8_t FIFOMODEMASK   = 0b11000000;
 constexpr uint8_t TRIGGERMASK    = 0b00110000;
-constexpr uint8_t WATERMARKMASK  = 0b00001111;
+constexpr uint8_t SAMPLESMASK    = 0b00001111;
+
 enum class FifoMode
 {
     Bypass,
@@ -109,6 +126,18 @@ constexpr uint8_t REGFIFOSTAT    = 0x39;
 constexpr uint8_t FIFOTRIGMASK   = 0b10000000;
 constexpr uint8_t FIFOSZMASK     = 0b00111111;
 
-}
+class ADXL345
+{
+public:
+    ADXL345(hwapi::II2C& pI2C)
+        : mI2C(pI2C)
+    {}
+    void configure()
+    {}
+private:
+    hwapi::II2C& mI2C;
+};
+
+} // adxl345
 
 #endif // __ADXL345_HPP__

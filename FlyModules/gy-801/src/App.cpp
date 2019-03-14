@@ -49,8 +49,10 @@ net::IpPort Args::parseIpPort(std::string pKey, net::IpPort pDefault) const
 App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
     : mCtrlAddr(pArgs.getCtrlAddr())
     , mCtrlSock(pUdpFactory.create())
-    , mI2CGyro(hwapi::getI2C(0b1101001))
+    , mI2CGyro (hwapi::getI2C(0x69))
     , mGyro(*mI2CGyro)
+    , mI2CAccel(hwapi::getI2C(0x53))
+    , mAccel(*mI2CAccel)
 {
     Logless("App::App ------------- Parameters ---------------");
     Logless("App::App control address: _._._._:_",

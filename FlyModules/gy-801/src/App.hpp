@@ -6,6 +6,7 @@
 #include <mutex>
 #include <regex>
 #include <L3G4200D.hpp>
+#include <ADXL345.hpp>
 #include <IHwApi.hpp>
 #include <Logger.hpp>
 #include <Udp.hpp>
@@ -60,6 +61,11 @@ private:
     int64_t mGyroDcOffsetX = 0;
     std::mutex mXYZlock;
     uint64_t mGyroLastSampleTime = 0;
+
+
+    // Accel
+    std::shared_ptr<hwapi::II2C> mI2CAccel;
+    adxl345::ADXL345 mAccel;
 };
 
 }

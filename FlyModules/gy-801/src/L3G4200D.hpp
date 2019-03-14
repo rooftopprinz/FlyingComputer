@@ -255,16 +255,19 @@ private:
     {
         mI2C.writeBlock(pRegister, &pValue, 1);
     }
+
     uint8_t getRegister(uint8_t pRegister)
     {
         uint8_t rv;
         mI2C.readBlock(pRegister, &rv, 1);
         return rv;
     }
+
     void getRegister(uint8_t pRegister, uint8_t* pData, size_t pCount)
     {
         mI2C.readBlock(pRegister, pData, pCount);
     }
+
     hwapi::II2C& mI2C;
 };
 
