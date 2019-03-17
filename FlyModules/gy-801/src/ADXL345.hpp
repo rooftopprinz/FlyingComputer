@@ -162,11 +162,12 @@ public:
 
         uint8_t ctrl = MEASUREMASK;
         setRegister(REGPOWERCTL, ctrl);
+        ctrl = FULLRESMASK;
         // ctrl = FULLRESMASK|JUSTIFYMASK|setMasked(RANGEMASK, (unsigned)Range::Range_4g);
-        // setRegister(REGDATAFMT, ctrl);
-        // ctrl = setMasked(RATEMASK, (unsigned)DataRate::DR_100p0HZ);
+        setRegister(REGDATAFMT, ctrl);
+        ctrl = setMasked(RATEMASK, (unsigned)DataRate::DR_100p0HZ);
         // ctrl = setMasked(RATEMASK, (unsigned)DataRate::DR_6p26HZ);
-        // setRegister(REGBWRATE, ctrl);
+        setRegister(REGBWRATE, ctrl);
         // ctrl = setMasked(FIFOMODEMASK, (unsigned)FifoMode::FIFO);
         // setRegister(REGFIFOCTL, ctrl);
     }

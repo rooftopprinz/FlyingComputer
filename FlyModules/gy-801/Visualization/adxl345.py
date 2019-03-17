@@ -46,25 +46,24 @@ TAPZSRCMASK    = 0b00000001
 REGBWRATE      = 0x2C
 LOWPOWERMASK   = 0b00010000
 RATEMASK       = 0b00001111
-# enum class DataRate
-# {
-#     DR_0p10HZ,
-#     DR_0p20HZ,
-#     DR_0p39HZ,
-#     DR_0p78HZ,
-#     DR_1p56HZ,
-#     DR_3p13HZ,
-#     DR_6p26HZ,
-#     DR_12p5HZ,
-#     DR_25p0HZ,
-#     DR_50p0HZ,
-#     DR_100p0HZ,
-#     DR_200p0HZ,
-#     DR_400p0HZ,
-#     DR_800p0HZ,
-#     DR_1600p0HZ,
-#     DR_3200p0HZ
-# };
+
+DR_0p10HZ      = 0
+DR_0p20HZ      = 1
+DR_0p39HZ      = 2
+DR_0p78HZ      = 3
+DR_1p56HZ      = 4
+DR_3p13HZ      = 5
+DR_6p26HZ      = 6
+DR_12p5HZ      = 7
+DR_25p0HZ      = 8
+DR_50p0HZ      = 9
+DR_100p0HZ     = 10
+DR_200p0HZ     = 11
+DR_400p0HZ     = 12
+DR_800p0HZ     = 13
+DR_1600p0HZ    = 14
+DR_3200p0H     = 15
+
 
 REGPOWERCTL    = 0x2D
 LINKMASK       = 0b00100000
@@ -92,6 +91,10 @@ INTINVERTMASK  = 0b00100000
 FULLRESMASK    = 0b00001000
 JUSTIFYMASK    = 0b00000100
 RANGEMASK      = 0b00000011
+Range_2g       = 0
+Range_4g       = 1
+Range_8g       = 2
+Range_16g      = 3
 
 REGDATAX0      = 0x32
 REGDATAX1      = 0x33
@@ -109,30 +112,25 @@ REGFIFOSTAT    = 0x39
 FIFOTRIGMASK   = 0b10000000
 FIFOSZMASK     = 0b00111111
 
-# Get I2C bus
 I2C_ADDR = 0x53
 bus = smbus.SMBus(1)
 devid = bus.read_byte_data(I2C_ADDR, 0)
 print "devid:", hex(devid)
-
-bus.write_byte_data(I2C_ADDR, REGBWRATE,   0x0A)                       # DR_100p0HZ
-bus.write_byte_data(I2C_ADDR, REGPOWERCTL, MEASUREMASK)                # MEASUREMASK
-bus.write_byte_data(I2C_ADDR, REGDATAFMT,  FULLRESMASK|JUSTIFYMASK)    # FULLRESMASK | JUSTIFYMASK
-
+bus.write_byte_data(I2C_ADDR, REGBWRATE,   DR_12p5HZ)      # DR_100p0HZ
+bus.write_byte_data(I2C_ADDR, REGPOWERCTL, MEASUREMASK)    # MEASUREMASK
+bus.write_byte_data(I2C_ADDR, REGDATAFMT,  FULLRESMASK|SELFTESTMASK|Range_16g)    # FULLRESMASK
 time.sleep(0.5)
-
+tstart = time.time()
 while (True):
+    tnow = time.time() - tstart
     data0 = bus.read_byte_data(I2C_ADDR, REGDATAX0)
     data1 = bus.read_byte_data(I2C_ADDR, REGDATAX1)
-    xAccl = (data1<<8) | data0
-
+    xAccl = (data1<<8)|data0
     data0 = bus.read_byte_data(I2C_ADDR, REGDATAY0)
     data1 = bus.read_byte_data(I2C_ADDR, REGDATAY1)
-    yAccl = (data1<<8) | data0
-
+    yAccl = (data1<<8)|data0
     data0 = bus.read_byte_data(I2C_ADDR, REGDATAZ0)
     data1 = bus.read_byte_data(I2C_ADDR, REGDATAZ1)
-    zAccl = (data1<<8) | data0
-
-    print "Acceleration : %s %s %s" % (hex(xAccl), hex(yAccl), hex(zAccl))
+    zAccl = (data1<<8)|data0
+    print "@%lf : %s %s %s" % (tnow, hex(xAccl), hex(yAccl), hex(zAccl))
     time.sleep(0.1)
