@@ -44,28 +44,41 @@ private:
     int sensorLoop();
     void calibrateGyro();
     void readGyro();
+    void readAccel();
 
     net::IpPort mCtrlAddr;
     std::unique_ptr<net::ISocket> mCtrlSock;
+    std::thread mSensorLoop;
+
 
     // Gyro
     std::shared_ptr<hwapi::II2C>   mI2CGyro;
     l3g4200d::L3G4200D mGyro;
-    std::thread mGyroLoop;
+    uint64_t mGyroLastSampleTime = 0;
     XYZ mXYZws[32];
+    double mGyroDcOffsetZ = 0;
+    double mGyroDcOffsetY = 0;
+    double mGyroDcOffsetX = 0;
+
+    // Orientation
+    std::mutex mXYZlock;
     float mZ = 0.0;
     float mY = 0.0;
     float mX = 0.0;
-    int64_t mGyroDcOffsetZ = 0;
-    int64_t mGyroDcOffsetY = 0;
-    int64_t mGyroDcOffsetX = 0;
-    std::mutex mXYZlock;
-    uint64_t mGyroLastSampleTime = 0;
-
+    //
+    std::mutex mXYZAccelLock;
+    float mZAccel = 0.0;
+    float mYAccel = 0.0;
+    float mXAccel = 0.0;
 
     // Accel
     std::shared_ptr<hwapi::II2C> mI2CAccel;
     adxl345::ADXL345 mAccel;
+    uint64_t mAccelLastSampleTime = 0;
+    XYZ mXYZg[32];
+    double mAccelDcOffsetZ = 0;
+    double mAccelDcOffsetY = 0;
+    double mAccelDcOffsetX = 0;
 };
 
 }

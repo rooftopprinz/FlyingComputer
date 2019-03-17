@@ -24,6 +24,7 @@ class I2C : public II2C
 {
 public:
     I2C(uint8_t pAddress)
+        : mAddress(pAddress)
     {
 
         Logless("DBG I2C::I2C opening address=_ for gpio=_", unsigned(pAddress), gGpioHandle);
@@ -44,17 +45,18 @@ public:
     int writeBlock(unsigned pReg, uint8_t* pBuf, unsigned pCount)
     {
         int rv = i2c_write_i2c_block_data(gGpioHandle, mHandle, pReg, (char*)pBuf, pCount);
-        // Logless("DBG I2C::writBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
+        Logless("DBG I2C[_]::writBlock rv:_ [_]=_", mAddress, rv, pReg, BufferLog(pCount, pBuf));
         return rv;
     }
     int readBlock(unsigned pReg, uint8_t* pBuf, unsigned pCount)
     {
         int rv = i2c_read_i2c_block_data(gGpioHandle, mHandle, pReg, (char*)pBuf, pCount);
-        // Logless("DBG I2C::readBlock rv:_ [_]=_", rv, pReg, BufferLog(pCount, pBuf));
+        Logless("DBG I2C[_]::readBlock rv:_ [_]=_", mAddress, rv, pReg, BufferLog(pCount, pBuf));
         return rv;
     }
 private:
     int mHandle;
+    int mAddress;
 };
 
 std::shared_ptr<II2C>  getI2C(uint8_t pAddress)

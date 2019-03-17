@@ -1,4 +1,5 @@
 #include <chrono>
+#include <fstream>
 #include <App.hpp>
 
 namespace app
@@ -64,7 +65,8 @@ App::App(net::IUdpFactory& pUdpFactory, const Args& pArgs)
 
     mCtrlSock->bind(mCtrlAddr);
     mGyro.configure(l3g4200d::DataRate::DR_100HZ, l3g4200d::Bandwidth::BW_HIGH);
-    mGyroLoop = std::thread(&App::sensorLoop, this);
+    mAccel.configure();
+    mSensorLoop = std::thread(&App::sensorLoop, this);
 }
 
 void App::calibrateGyro()
@@ -72,34 +74,38 @@ void App::calibrateGyro()
     mGyro.bypass();
     mGyro.fifo();
 
-    mGyroDcOffsetZ = 0.0;
-    mGyroDcOffsetY = 0.0;
-    mGyroDcOffsetX = 0.0;
-
-    size_t i=0;
-    while (i<100)
     {
-        using namespace std::literals::chrono_literals;
-        std::this_thread::sleep_for(250ms); // TODO: Base it on ODR 
-        size_t sz = mGyro.read((uint8_t*)&mXYZws);
-        uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-        uint64_t diff = tnow-mGyroLastSampleTime;
-        double deltaT = double(diff)/1000000.0;
-        mGyroLastSampleTime = tnow;
-        deltaT = deltaT/sz;
-        // constexpr double DPS = 500.0;
-        for (size_t j=0; j<sz; j++, i++)
-        {
-            Logless("App::calibrateGyro i=_ diff=_ s x=_ y=_ z=_ ", i, deltaT, mXYZws[j].x, mXYZws[j].y, mXYZws[j].z);
-            mGyroDcOffsetZ += mXYZws[j].z;
-            mGyroDcOffsetY += mXYZws[j].y;
-            mGyroDcOffsetX += mXYZws[j].x;
-        }
+        std::ifstream istrm("gyrocalibration", std::ios::binary);
+        istrm >> mGyroDcOffsetX;
+        istrm >> mGyroDcOffsetY;
+        istrm >> mGyroDcOffsetZ;
     }
 
-    mGyroDcOffsetZ /= i;
-    mGyroDcOffsetY /= i;
-    mGyroDcOffsetX /= i;
+    // return;
+
+    // size_t i=0;
+    // while (i<1000)
+    // {
+    //     using namespace std::literals::chrono_literals;
+    //     std::this_thread::sleep_for(250ms); // TODO: Base it on ODR 
+    //     const size_t sz = mGyro.readRaw((uint8_t*)&mXYZws);
+    //     const uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    //     const uint64_t diff = tnow-mGyroLastSampleTime;
+    //     const double deltaT = double(diff)/1000000.0/sz;
+    //     mGyroLastSampleTime = tnow;
+
+    //     for (size_t j=0; j<sz; j++, i++)
+    //     {
+    //         Logless("App::calibrateGyro i=_ diff=_ s x=_ y=_ z=_ ", i, deltaT, mXYZws[j].x, mXYZws[j].y, mXYZws[j].z);
+    //         mGyroDcOffsetZ += mXYZws[j].z;
+    //         mGyroDcOffsetY += mXYZws[j].y;
+    //         mGyroDcOffsetX += mXYZws[j].x;
+    //     }
+    // }
+
+    // mGyroDcOffsetZ /= i;
+    // mGyroDcOffsetY /= i;
+    // mGyroDcOffsetX /= i;
 
     Logless("App::calibrateGyro DCBIAS=(_ _ _)",
         mGyroDcOffsetX,
@@ -110,36 +116,70 @@ void App::calibrateGyro()
 void App::readGyro()
 {
     static double sensorTime = 0.0;
-    size_t sz = mGyro.read((uint8_t*)&mXYZws);
-    uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    uint64_t diff = tnow-mGyroLastSampleTime;
+    const size_t sz = mGyro.readRaw((uint8_t*)&mXYZws);
+    const uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    const uint64_t diff = tnow-mGyroLastSampleTime;
+    double deltaT = double(diff)/1000000.0/sz;
     mGyroLastSampleTime = tnow;
-    double deltaT = double(diff)/1000000.0;
-    // Logless("App::sensorLoop TDIFF=_ ms size=_", deltaT*1000.0, sz);
-    deltaT = deltaT/sz;
-    constexpr double DPS = 500.0;
+    const double scalingFactor = mGyro.getScalingFactor();
     for (size_t i=0; i<sz; i++)
     {
-        Logless("App::readGyro diff=_ s t=_ s x=_ y=_ z=_ ", deltaT, sensorTime, mXYZws[i].x, mXYZws[i].y, mXYZws[i].z);
+        Logless("App::readGyro[_] diff=_ s t=_ s x=_ y=_ z=_ ", i, deltaT, sensorTime, mXYZws[i].x, mXYZws[i].y, mXYZws[i].z);
         {
             sensorTime += deltaT;
             std::unique_lock<std::mutex> ulock(mXYZlock);   
-            mX += ((mXYZws[i].x-mGyroDcOffsetX)*deltaT*DPS/32767);
-            mY += ((mXYZws[i].y-mGyroDcOffsetY)*deltaT*DPS/32767);
-            mZ += ((mXYZws[i].z-mGyroDcOffsetZ)*deltaT*DPS/32767);
+            mX += ((mXYZws[i].x-mGyroDcOffsetX)*deltaT*scalingFactor);
+            mY += ((mXYZws[i].y-mGyroDcOffsetY)*deltaT*scalingFactor);
+            mZ += ((mXYZws[i].z-mGyroDcOffsetZ)*deltaT*scalingFactor);
         }
+    }
+}
+
+void App::readAccel()
+{
+    static double sensorTime = 0.0;
+    const size_t sz = mAccel.readRaw((uint8_t*)&mXYZg);
+    const uint64_t tnow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    const uint64_t diff = tnow-mAccelLastSampleTime;
+    double deltaT = double(diff)/1000000.0/sz;
+    mAccelLastSampleTime = tnow;
+    const double scalingFactor = 0.004; // assume full scale
+
+    float xAccelSum = 0.0;
+    float yAccelSum = 0.0;
+    float zAccelSum = 0.0;
+
+    for (size_t i=0; i<sz; i++)
+    {
+        Logless("App::readAccel[_] diff=_ s t=_ s x=_ y=_ z=_ ", i, deltaT, sensorTime, mXYZg[i].x, mXYZg[i].y, mXYZg[i].z);
+        sensorTime += deltaT;
+        xAccelSum += ((mXYZg[i].z-mAccelDcOffsetX)*scalingFactor);
+        yAccelSum += ((mXYZg[i].y-mAccelDcOffsetY)*scalingFactor);
+        zAccelSum += ((mXYZg[i].x-mAccelDcOffsetZ)*scalingFactor);
+    }
+
+    {
+        std::unique_lock<std::mutex> ulock(mXYZAccelLock);
+        Logless("App::readAccel[sum] x=_ y=_ z=_ ", xAccelSum, yAccelSum, zAccelSum);
+        sensorTime += deltaT;
+        mXAccel = xAccelSum/sz;
+        mYAccel = yAccelSum/sz;
+        mZAccel = zAccelSum/sz;
     }
 }
 
 int App::sensorLoop()
 {
     mGyroLastSampleTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    mAccelLastSampleTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     calibrateGyro();
     while(1)
     {
         using namespace std::literals::chrono_literals;
-        std::this_thread::sleep_for(250ms); // TODO: Base it on ODR 
+        std::this_thread::sleep_for(250ms); // TODO: Base it on ODR
+        Logless("App::sensorLoop 250ms");
         readGyro();
+        readAccel();
     }
 }
 
@@ -151,20 +191,37 @@ int App::run()
     {
         net::IpPort src;
         mCtrlSock->recvfrom(recvbuffer, src);
-        float lZ;
-        float lY;
-        float lX;
+
+        float oZ;
+        float oY;
+        float oX;
+        float aZ;
+        float aY;
+        float aX;
+
         {
             std::unique_lock<std::mutex> ulock(mXYZlock);
-            lZ = float(mZ);
-            lY = float(mY);
-            lX = float(mX);
+            oZ = float(mZ);
+            oY = float(mY);
+            oX = float(mX);
         }
-        new (sendbuffer.data()+sizeof(float)*0) float(lZ);
-        new (sendbuffer.data()+sizeof(float)*1) float(lY);
-        new (sendbuffer.data()+sizeof(float)*2) float(lX);
-        Logless("App::run (_,_,_)", lX, lY, lZ);
-        common::Buffer tosend(sendbuffer.data(), sizeof(float)*3, false);
+
+        {
+            std::unique_lock<std::mutex> ulock(mXYZAccelLock);
+            aZ = float(mZAccel);
+            aY = float(mYAccel);
+            aX = float(mXAccel);
+        }
+
+        new (sendbuffer.data()+sizeof(float)*0) float(oZ);
+        new (sendbuffer.data()+sizeof(float)*1) float(oY);
+        new (sendbuffer.data()+sizeof(float)*2) float(oX);
+        new (sendbuffer.data()+sizeof(float)*3) float(aZ);
+        new (sendbuffer.data()+sizeof(float)*4) float(aY);
+        new (sendbuffer.data()+sizeof(float)*5) float(aX);
+
+        Logless("App::run (_,_,_) (_,_,_)", oX, oY, oZ, aX, aY, aZ);
+        common::Buffer tosend(sendbuffer.data(), sizeof(float)*6, false);
         mCtrlSock->sendto(tosend, src);
     }
     return 0;

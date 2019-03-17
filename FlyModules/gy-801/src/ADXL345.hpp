@@ -74,6 +74,13 @@ constexpr uint8_t AUTOSLEEPMASK  = 0b00010000;
 constexpr uint8_t MEASUREMASK    = 0b00001000;
 constexpr uint8_t SLEEPMASK      = 0b00000100;
 constexpr uint8_t WAKEUPMASK     = 0b00000011;
+enum class SleepDataRate
+{
+    DR_8HZ,
+    DR_4HZ,
+    DR_2HZ,
+    DR_1HZ
+};
 
 constexpr uint8_t REGINTENABLE   = 0x2E;
 constexpr uint8_t REGINTMAP      = 0x2F;
@@ -111,8 +118,8 @@ constexpr uint8_t REGDATAZ1      = 0x37;
 
 constexpr uint8_t REGFIFOCTL     = 0x38;
 constexpr uint8_t FIFOMODEMASK   = 0b11000000;
-constexpr uint8_t TRIGGERMASK    = 0b00110000;
-constexpr uint8_t SAMPLESMASK    = 0b00001111;
+constexpr uint8_t TRIGGERMASK    = 0b00100000;
+constexpr uint8_t SAMPLESMASK    = 0b00011111;
 
 enum class FifoMode
 {
@@ -126,15 +133,74 @@ constexpr uint8_t REGFIFOSTAT    = 0x39;
 constexpr uint8_t FIFOTRIGMASK   = 0b10000000;
 constexpr uint8_t FIFOSZMASK     = 0b00111111;
 
+inline uint64_t getUnmasked(uint64_t mask, uint64_t value)
+{
+    for (; !(mask&1); mask = (mask>>1), value = (value>>1));
+    return mask&value;
+}
+
+inline uint64_t setMasked(uint64_t mask, uint64_t value)
+{
+    auto omask = mask;
+    for (; !(mask&1); mask = (mask>>1), value = (value<<1));
+    return value&omask;
+}
+
 class ADXL345
 {
 public:
     ADXL345(hwapi::II2C& pI2C)
         : mI2C(pI2C)
     {}
+
     void configure()
-    {}
+    {
+        if (0b11100101 != getRegister(REGDEVID))
+        {
+            throw std::runtime_error(std::string("ADXL345 is not recognized!"));
+        }
+
+        uint8_t ctrl = MEASUREMASK;
+        setRegister(REGPOWERCTL, ctrl);
+        // ctrl = FULLRESMASK|JUSTIFYMASK|setMasked(RANGEMASK, (unsigned)Range::Range_4g);
+        // setRegister(REGDATAFMT, ctrl);
+        // ctrl = setMasked(RATEMASK, (unsigned)DataRate::DR_100p0HZ);
+        // ctrl = setMasked(RATEMASK, (unsigned)DataRate::DR_6p26HZ);
+        // setRegister(REGBWRATE, ctrl);
+        // ctrl = setMasked(FIFOMODEMASK, (unsigned)FifoMode::FIFO);
+        // setRegister(REGFIFOCTL, ctrl);
+    }
+
+    size_t readRaw(void* pDataXYZ)
+    {
+        // const uint8_t fifo = getRegister(REGFIFOSTAT);
+        // const uint8_t sz = getUnmasked(FIFOSZMASK, fifo);
+        const uint8_t sz = 1;
+        for (size_t i=0; i<sz; i++)
+        {
+            getRegister(REGDATAX0, (uint8_t*)pDataXYZ+6*i, 6);
+        }
+        return sz;
+    }
+
 private:
+    void setRegister(uint8_t pRegister, uint8_t pValue)
+    {
+        mI2C.writeBlock(pRegister, &pValue, 1);
+    }
+
+    uint8_t getRegister(uint8_t pRegister)
+    {
+        uint8_t rv;
+        mI2C.readBlock(pRegister, &rv, 1);
+        return rv;
+    }
+
+    void getRegister(uint8_t pRegister, uint8_t* pData, size_t pCount)
+    {
+        mI2C.readBlock(pRegister, pData, pCount);
+    }
+
     hwapi::II2C& mI2C;
 };
 

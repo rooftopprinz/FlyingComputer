@@ -210,7 +210,8 @@ public:
         // ctrl = setMasked(HPCMASK, 0b0110);
         // setRegister(REGCTLR2, ctrl);
         // getRegister(REGREF);
-        ctrl = setMasked(FSSELMASK, (unsigned)FullScaleSelect::FS_500dps)|BDUMASK;
+        mScale = FullScaleSelect::FS_500dps;
+        ctrl = setMasked(FSSELMASK, unsigned(mScale))|BDUMASK;
         setRegister(REGCTLR4, ctrl);
         ctrl = setMasked(FIFOENMASK, true)|setMasked(OUTSELMASK, (unsigned)OutputSelection::LPF1);
         setRegister(REGCTLR5, ctrl);
@@ -228,11 +229,24 @@ public:
         setRegister(REGFIFOCTRL, ctrl);
     }
 
-    size_t read(uint8_t* pDataXYZ)
+    double getScalingFactor()
+    {
+        switch (mScale)
+        {
+            case FullScaleSelect::FS_250dps:
+                return 0.00875;
+            case FullScaleSelect::FS_500dps:
+                return 0.0175;
+            default:
+                return 0.07;
+        }
+    }
+
+    size_t readRaw(void* pDataXYZ)
     {
         // Logless("L3G4200D::read READ FIFO");
-        uint8_t src = getRegister(REGFIFOSRC);
-        uint8_t sz = getUnmasked(FIFOCOUNT, src)+1;
+        const uint8_t src = getRegister(REGFIFOSRC);
+        const uint8_t sz = getUnmasked(FIFOCOUNT, src)+1;
         const size_t rc = (sz/5) + !!(sz%5);
 
         for (size_t i=0; i<rc; i++)
@@ -242,7 +256,7 @@ public:
             {
                 rsz = (sz%5)*6;
             }
-            getRegister(REGOXL|0x80, pDataXYZ+30*i, rsz);
+            getRegister(REGOXL|0x80, (uint8_t*)pDataXYZ+30*i, rsz);
         }
         getRegister(REGFIFOSRC);
         bypass();
@@ -269,6 +283,7 @@ private:
     }
 
     hwapi::II2C& mI2C;
+    FullScaleSelect mScale;
 };
 
 }
