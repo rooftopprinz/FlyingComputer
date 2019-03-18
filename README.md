@@ -1,5 +1,11 @@
 # FlyingComputer
 
+## Architecture
+![alt text](https://raw.githubusercontent.com/therooftopprinz/FlyingComputer/master/Architecture/wholesystemv0.png "Architecture")
+
+## FlyAdvance
+![alt text](https://raw.githubusercontent.com/therooftopprinz/FlyingComputer/master/Architecture/fcapcs.png "FlyAdvance")
+
 ## FlyModules
 
 ### GY-801 (cancelled in favor of BNO55)
