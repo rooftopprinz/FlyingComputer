@@ -5,10 +5,6 @@
 #include <cstddef>
 #include <cstring>
 
-namespace std
-{
-    enum class byte : uint8_t;
-}
 namespace common
 {
 

@@ -1,13 +1,43 @@
 #ifndef __FLYINTERFACE_PROTOCOL_HPP__
 #define __FLYINTERFACE_PROTOCOL_HPP__
 
+#include <cstdint>
+
 namespace flydb
 {
 
+enum class MessageType : uint8_t
+{
+    SetRequest,
+    SetResponse,
+    SetIndication,
+    GetRequest,
+    GetResponse
+};
+
 struct Header
 {
-    uint8_t msgType;
+    MessageType msgType;
     uint8_t trId;
+};
+
+struct SetRequest
+{
+    Header header;
+    uint8_t key;
+    uint8_t size;
+};
+
+struct SetResponse
+{
+    Header header;
+};
+
+struct SetIndication
+{
+    Header header;
+    uint8_t key;
+    uint8_t size;
 };
 
 struct GetRequest
@@ -19,40 +49,9 @@ struct GetRequest
 struct GetResponse
 {
     Header header;
-    uint8_t data[0];
+    uint8_t size;
 };
 
-struct SetRequest
-{
-    Header header;
-    uint8_t key;
-    uint8_t data[0];
-};
-
-struct SetResponse
-{
-    Header header;
-};
-
-setruct SetIndication
-{
-    Header header;
-    uint8_t key;
-    uint8_t data[0];
-};
-
-struct SubsribeRequest
-{
-    Header header;
-    uint8_t key;
-};
-
-struct SubsribeResponse
-{
-    Header header;
-    uint16_t id;
-};
- 
 };
 
 #endif // __FLYINTERFACE_PROTOCOL_HPP__

@@ -80,19 +80,13 @@ STUB_SOURCES  = []
 
 p = subprocess.Popen('cd '+TLD+'test        && find .             | egrep \'\.cpp$\'', shell=True, stdout=subprocess.PIPE)
 q = subprocess.Popen('cd '+TLD+'src         && find .             | egrep \'\.cpp$\' | grep -v main.cpp', shell=True, stdout=subprocess.PIPE)
-r = subprocess.Popen('cd '+TLD+'HwApiStub   && find .             | egrep \'\.cpp$\' | grep -v main.cpp', shell=True, stdout=subprocess.PIPE)
-u = subprocess.Popen('cd '+TLD+'PigpioHwApi && find .             | egrep \'\.cpp$\' | grep -v main.cpp', shell=True, stdout=subprocess.PIPE)
 
 TEST_SOURCES = clean_filenames(p.stdout.readlines())
 SRC_SOURCES  = clean_filenames(q.stdout.readlines())
-STUB_SOURCES  = clean_filenames(r.stdout.readlines())
-PIGPIO_SOURCES  = clean_filenames(u.stdout.readlines())
-
 
 print "TEST_SOURCES", TEST_SOURCES
 print "SRC_SOURCES", SRC_SOURCES
-print "SRC_SOURCES", STUB_SOURCES
-print "PIGPIO_SOURCES", PIGPIO_SOURCES
+
 
 gtest = Build()
 gtest.set_cxxflags(CXXFLAGS)
@@ -103,7 +97,7 @@ gtest.target_archive('gtest.a')
 
 src = Build()
 src.set_cxxflags(CXXFLAGS)
-src.add_include_paths(['src/', 'HwApi/', 'Logless/', 'Common/'])
+src.add_include_paths(['src/', 'FlyInterface/', 'Logless/', 'Common/'])
 src.set_src_dir(TLD+'src/')
 src.add_src_files(SRC_SOURCES)
 src.target_archive('src.a')
@@ -115,46 +109,15 @@ logless.set_src_dir(TLD+'Logless/')
 logless.add_src_files(["Logger.cpp"])
 logless.target_archive('logless.a')
 
-pigpiohwApi = Build()
-pigpiohwApi.set_cxxflags(CXXFLAGS)
-pigpiohwApi.add_include_paths(['HwApi/', 'Logless/', 'src/', 'Common/'])
-pigpiohwApi.set_src_dir(TLD+'PigpioHwApi/')
-pigpiohwApi.add_src_files(PIGPIO_SOURCES)
-pigpiohwApi.target_archive('pigpiohwapi.a')
-
-hwapistub = Build()
-hwapistub.set_cxxflags(CXXFLAGS)
-hwapistub.add_include_paths(['HwApi/', 'Logless/', 'src/', 'Common/'])
-hwapistub.set_src_dir(TLD+'HwApiStub/')
-hwapistub.add_src_files(STUB_SOURCES)
-hwapistub.target_archive('stub.a')
-
 test = Build()
 test.set_cxxflags(CXXFLAGS)
-test.add_include_paths(['gtest/', 'src/', 'HwApi/', 'test/', 'Logless/', 'Common/'])
+test.add_include_paths(['gtest/', 'src/', 'FlyInterface/', 'test/', 'Logless/', 'Common/'])
 test.set_src_dir(TLD+'test/')
 test.add_src_files(TEST_SOURCES)
-test.add_dependencies(['gtest.a', 'src.a', 'common.a'])
+test.add_dependencies(['gtest.a', 'src.a'])
 test.set_linkflags("-lpthread")
 test.target_executable('test')
 
-binstub = Build()
-binstub.set_cxxflags(CXXFLAGS)
-binstub.add_include_paths(['src/', 'HwApi/', 'Logless/', 'Common/'])
-binstub.set_src_dir(TLD+'src/')
-binstub.add_src_files(["main.cpp"])
-binstub.add_dependencies(['src.a', 'stub.a', 'logless.a'])
-binstub.set_linkflags("-lpthread")
-binstub.target_executable('bno055_stub')
-
-binpigpio = Build()
-binpigpio.set_cxxflags(CXXFLAGS)
-binpigpio.add_include_paths(['src/', 'HwApi/', 'HwApi/', 'Logless/', 'Common/'])
-binpigpio.set_src_dir(TLD+'src/')
-binpigpio.add_src_files(["main.cpp"])
-binpigpio.add_dependencies(['src.a', 'pigpiohwapi.a', 'logless.a'])
-binpigpio.set_linkflags("-lpthread -lpigpiod_if2")
-binpigpio.target_executable('bno055_pigpio')
 
 
 with open('Makefile','w+') as mf:
@@ -162,7 +125,3 @@ with open('Makefile','w+') as mf:
     mf.write(test.generate_make())
     mf.write(src.generate_make())
     mf.write(logless.generate_make())
-    mf.write(pigpiohwApi.generate_make())
-    mf.write(hwapistub.generate_make())
-    mf.write(binstub.generate_make())
-    mf.write(binpigpio.generate_make())
