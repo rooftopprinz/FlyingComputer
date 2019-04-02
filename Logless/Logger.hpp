@@ -73,7 +73,7 @@ public:
             logbuff[sz++] = '\n';
             ::write(1, logbuff, sz);
         }
-        {       
+        {
             // constexpr size_t payloadSize = sizeof(HeaderType) + sizeof(TagType)*2 + sizeof(pTime) + sizeof(pThread) +
                 // sizeof(TagType)*sizeof...(Ts) + TotalSize<Ts...>::value + sizeof(TailType);
             uint8_t usedBuffer[2048];
@@ -238,12 +238,18 @@ private:
     static const char* LoggerRef;
 };
 
+inline uint64_t getTimeDelta(uint64_t pTime)
+{
+    static uint64_t timebase = pTime;
+    return pTime-timebase;
+}
+
 template <typename... Ts>
 void Logless(const char* id, Ts... ts)
 {
     uint64_t timeNow = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     uint64_t threadId = std::hash<std::thread::id>()(std::this_thread::get_id());
-    Logger::getInstance().log(id, timeNow, threadId, ts...);
+    Logger::getInstance().log(id, getTimeDelta(timeNow), threadId, ts...);
 }
 
 #endif // __LOGGER_HPP__
