@@ -7,7 +7,7 @@
 namespace flydb
 {
 
-enum class MessageTypes : uint8_t
+enum class MessageType : uint8_t
 {
     SetRequest,
     SetResponse,
@@ -16,7 +16,6 @@ enum class MessageTypes : uint8_t
     GetResponse
 };
 
-using MessageType = uint8_t;
 using Key = uint8_t;
 using TrId = uint8_t;
 using Size = uint8_t;
@@ -25,102 +24,122 @@ struct Header
 {
     MessageType msgType;
     TrId trId;
-};
-
-struct SetRequest
-{
-    Header header;
     Size size;
 };
 
-struct SetResponse
-{
-    Header header;
-};
+/**********************************
+//  Message Definition:
+//   
+//      Notation:
+//          H - header
+//          K - key
+//          S - size
+//          V - value
+//   
+**********************************/
 
-struct SetIndication
-{
-    Header header;
-    Size size;
-};
-
-struct GetRequest
-{
-    Header header;
-    Size size;
-};
-
-struct GetResponse
-{
-    Header header;
-    Size size;
-};
+struct SetRequest : Header {};    // H(KSV)+
+struct SetResponse : Header {};   // H
+struct SetIndication : Header {}; // H(KSV)+
+struct GetRequest : Header {};    // H(K)+
+struct GetResponse : Header {};   // H(KSV)+
 
 template <typename>
 struct MessageTraits;
-template struct MessageTraits<SetRequest>    {constexpr MessageTypes msgType = MessageTypes::SetRequest;};
-template struct MessageTraits<SetResponse>   {constexpr MessageTypes msgType = MessageTypes::SetResponse;};
-template struct MessageTraits<SetIndication> {constexpr MessageTypes msgType = MessageTypes::SetIndication;};
-template struct MessageTraits<GetRequest>    {constexpr MessageTypes msgType = MessageTypes::GetRequest;};
-template struct MessageTraits<GetResponse>   {constexpr MessageTypes msgType = MessageTypes::GetResponse;};
+template<> struct MessageTraits<SetRequest>    {static constexpr MessageType msgType = MessageType::SetRequest;};
+template<> struct MessageTraits<SetResponse>   {static constexpr MessageType msgType = MessageType::SetResponse;};
+template<> struct MessageTraits<SetIndication> {static constexpr MessageType msgType = MessageType::SetIndication;};
+template<> struct MessageTraits<GetRequest>    {static constexpr MessageType msgType = MessageType::GetRequest;};
+template<> struct MessageTraits<GetResponse>   {static constexpr MessageType msgType = MessageType::GetResponse;};
 
 template <typename T>
 class Encoder
 {
 public:
     Encoder(std::byte* pData, size_t pMaxSize)
-        : mData(pData)
-        , mMaxSize(pSize)
-    {}
-
-    T* initialize()
+        : mMsg (new (pData) T{})
+        , mData(pData)
+        , mCurrent(pData + sizeof(T))
+        , mLimit(pData+pMaxSize)
     {
-        auto rv = new (mData) T{};
-        rv->header.msgType = MessageTraits<T>::msgType;
-        mCurrent = mData + sizeof(T);
+        mMsg->msgType = MessageTraits<T>::msgType;
     }
 
-    template <typename T>
-    void addField(const T& pData)
+    T& get()
     {
+        return *mMsg;
+    }
+
+    template <typename U>
+    bool addField(const U& pData)
+    {
+        if (mCurrent+sizeof(pData) > mLimit)
+        {
+            return false;
+        }
+
         std::memcpy(mCurrent, &pData, sizeof(pData));
+
         mCurrent += sizeof(pData);
+        mMsg->size = size();
+
+        return true;
     }
 
-    template <typename T>
-    void addField(const Key pKey, const T& pDataIn)
+    template <typename U>
+    bool addField(const Key pKey, const U& pDataIn)
     {
+        const Size size = sizeof(pDataIn);
+
+        if (mCurrent+sizeof(pKey)+sizeof(size)+sizeof(pDataIn) > mLimit)
+        {
+            return false;
+        }
+
         addField(pKey);
-        addField((Size)sizeof(pDataIn));
+        addField(size);
         addField(pDataIn);
+
+        return true;
     }
 
-    void addField(const Key pKey, std::byte* pRawIn, Size pSize)
+    bool addField(const Key pKey, std::byte* pRawIn, Size pSize)
     {
+        if (mCurrent+sizeof(pKey)+sizeof(pSize)+pSize > mLimit)
+        {
+            return false;
+        }
+
         addField(pKey);
         addField(pSize);
-        std::memcpy(mCurrent, pRawIn, pSize)
+        std::memcpy(mCurrent, pRawIn, pSize);
+
         mCurrent += pSize;
+        mMsg->size = size();
+
+        return true;
     }
 
-    size_t useSize()
+    size_t size()
     {
         return mCurrent - mData;
     }
 
 private:
+    T*         mMsg;
     std::byte* mData;
     std::byte* mCurrent;
-    size_t mMaxSize;
+    std::byte* mLimit;
 };
 
 template <typename T>
 class Decoder
 {
 public:
-    Decoder(std::byte* pData, size_t pMaxSize)
+    Decoder(const std::byte* pData, size_t pMaxSize)
         : mData(pData)
-        , mMaxSize(pSize)
+        , mCurrent(pData + sizeof(T))
+        , mLimit(pData+pMaxSize)
     {}
 
     T get()
@@ -130,42 +149,65 @@ public:
         return rv;
     }
 
-    template <typename T>
-    void getField(T& pDataOut)
+    template <typename U>
+    bool getField(U& pDataOut)
     {
-        std::memcpy(&pDataOut, mCurrent, sizeof(pDataOut));
-        mCurrent += sizeof(T);
-    }
-
-    template <typename T>
-    void getField(Key& pKey, T& pDataOut)
-    {
-        uint8_t size;
-
-        (pKey);
-        getField(size);
-
-        if (sizeof(T)!=size)
+        if (mCurrent+sizeof(pDataOut) > mLimit)
         {
-            return nullptr;
+            return false;
         }
 
-        getAndAdvance(pDataOut);
-
-        return pRawIn;
+        std::memcpy(&pDataOut, mCurrent, sizeof(pDataOut));
+        mCurrent += sizeof(U);
+        return true;
     }
 
-    void getField(Key& pKey, std::byte* &pRawOut, Size &pSize)
+
+    template <typename U>
+    bool getField(Key& pKey, U& pDataOut)
     {
+        Size size;
+
+        if (mCurrent+sizeof(pKey)+sizeof(size)+sizeof(pDataOut) > mLimit)
+        {
+            return false;
+        }
+
+        getField(pKey);
+        getField(size);
+
+        if (size!=pDataOut)
+        {
+            return false;
+        }
+        getField(pDataOut);
+        return true;
+    }
+
+    bool getField(Key& pKey, std::byte* &pRawOut, Size &pSize)
+    {
+        if (mCurrent+sizeof(pKey)+sizeof(pSize) > mLimit)
+        {
+            return false;
+        }
+
         getField(pKey);
         getField(pSize);
-        std::memcpy(pRawOut, mCurrent, pSize)
-        return mCurrent + pSize;
+
+        if (mCurrent+pSize > mLimit)
+        {
+            return false;
+        }
+
+        std::memcpy(pRawOut, mCurrent, pSize);
+        mCurrent += pSize;
+        return true;
     }
+
 private:
-    std::byte* mData;
-    std::byte* mCurrent;
-    size_t mMaxSize;
+    const std::byte* mData;
+    const std::byte* mCurrent;
+    const std::byte* mLimit;
 };
 
 } // namemspace flydb
