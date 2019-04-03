@@ -29,6 +29,38 @@ Collects data from GY-NEO6MV2 over UART2, Differential Pressure sensor over anal
 Interfaces GND to FlyDb over FlyComm (PiLoRa).<br />
 Schedules periodic downlink data from FlyDb.
 
+**LoRa Packet Definition**
+| Name | Description | Size |
+|------|-------------|------|
+| TYPE	| Message Id		| 1 |
+| SN	| Sequence Number	| 1 |
+| MAC	| Message Integrity	| 2 |
+| DATA	| Data Payload		| N |
+
+**Payload Format**
+| ID	| Name	| Size |
+|-------|-------|------|
+| UID	| Param Identifier	| 1 |
+| SIZ	| Proceeding Size	| 1 |
+| DAT	| Data |SIZ |
+
+SIZ and DAT are always pair.
+
+**Message Definitions**
+
+| Message Type	| Message Name	| Data Payload |
+|---------------|---------------|--------------|
+| 0	|Read Group Request	| UID
+| 1	| Read Group Response	| DAT
+| 2	| Write Group Request	| UID \| SIZ \| DAT
+| 3	| Write Group Response	
+| 4	| Write Group Indication	| UID \| SIZ \| DAT
+| 5	| Read Data Request	| UID
+| 6	| Read Data Response	| SIZ \| DAT
+| 7	| Write Data Request	| UID \| SIZ \| DAT
+| 8	| Write Data Response	
+| 9	| Write Data Indication	| UID \| SIZ \| DAT
+
 ## FlyItf GND
 Interfaces FlyDb to user input / output display.<br />
 Schedules periodic uplink data from user input and setting.
