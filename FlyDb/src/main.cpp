@@ -9,6 +9,9 @@ int main()
     DbServer server(sock);
     std::byte rawbuffer[1024];
     common::Buffer recvbuffer(rawbuffer, sizeof(rawbuffer), false);
+
+    Logger::getInstance().logful();
+
     while (true)
     {
         auto rc = sock.recvfrom(recvbuffer, addr);

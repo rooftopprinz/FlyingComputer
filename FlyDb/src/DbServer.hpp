@@ -27,8 +27,9 @@ public:
                 break;
             case flydb::MessageType::GetRequest:
                 onGetRequest(pMessage, pAddr);
+                break;
             default:
-                Logless("ERR onReceive - MessageId _ invalid.", (unsigned)header.msgType);
+                Logless("ERR DbServer::onReceive - MessageId _ invalid.", (unsigned)header.msgType);
         }
     }
 
@@ -38,6 +39,7 @@ private:
         std::byte responseraw[1024];
         flydb::Decoder<flydb::GetRequest>  requestDecoder(pMessage.data(), pMessage.size());
         flydb::Encoder<flydb::GetResponse> responseEncoder(responseraw, sizeof(responseraw));
+        Logless("DBG DbServer::onGetRequest - message =_", BufferLog(pMessage.size(), (void*)pMessage.data()));
 
         auto request = requestDecoder.get();
         auto& response = responseEncoder.get();
@@ -63,9 +65,10 @@ private:
                 size = it->second.size();
             }
 
+            Logless("DBG DbServer::onGetRequest - Get [_] sz:_", (unsigned)key, (unsigned)size);
             if (!responseEncoder.addField(key, data, size))
             {
-                Logless("ERR onGetRequest - unable to encode reponse!");
+                Logless("ERR DbServer::onGetRequest - unable to encode reponse!");
                 return;
             }
         }
@@ -86,7 +89,7 @@ private:
         while (true)
         {
             flydb::Key key;
-            std::byte *data;
+            const std::byte *data;
             flydb::Size size;
 
             if (!requestDecoder.getField(key, data, size))
@@ -117,7 +120,7 @@ private:
         while (true)
         {
             flydb::Key key;
-            std::byte *data;
+            const std::byte *data;
             flydb::Size size;
 
             if (!requestDecoder.getField(key, data, size))
@@ -137,12 +140,6 @@ private:
                 mDatabase.emplace(key, common::Buffer(newdata, size));
             }
         }
-    }
-
-    template <typename...T>
-    void Logless(T&&... ts)
-    {
-        ::Logless("DbServer ", ts...);
     }
 
     std::map<uint8_t, common::Buffer> mDatabase;

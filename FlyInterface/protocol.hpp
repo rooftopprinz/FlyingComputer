@@ -176,7 +176,7 @@ public:
         getField(pKey);
         getField(size);
 
-        if (size!=pDataOut)
+        if (size!=sizeof(pDataOut))
         {
             return false;
         }
@@ -184,7 +184,7 @@ public:
         return true;
     }
 
-    bool getField(Key& pKey, std::byte* &pRawOut, Size &pSize)
+    bool getField(Key& pKey, const std::byte* &pRawOut, Size &pSize)
     {
         if (mCurrent+sizeof(pKey)+sizeof(pSize) > mLimit)
         {
@@ -199,7 +199,7 @@ public:
             return false;
         }
 
-        std::memcpy(pRawOut, mCurrent, pSize);
+        pRawOut = mCurrent;
         mCurrent += pSize;
         return true;
     }
