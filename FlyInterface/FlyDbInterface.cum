@@ -1,0 +1,52 @@
+Type U8               {type(unsigned)     width(8)};
+Type ParamData        {type(unsigned)     dynamic_array(255) width(8)};
+
+Sequence ParamIdData
+{
+    U8        id,
+    ParamData data
+};
+
+Type ParamIdArray     {type(unsigned)     dynamic_array(256) width(8)};
+Type ParamDataArray   {type(ParamData)   dynamic_array(256)};
+Type ParamIdDataArray {type(ParamIdData) dynamic_array(256)};
+
+Sequence ReadRequest
+{
+    ParamIdArray paramIds
+};
+
+Sequence ReadResponse
+{
+    ParamDataArray paramData
+};
+
+Sequence WriteIndication
+{
+    ParamIdDataArray paramIds
+};
+
+Sequence WriteRequest
+{
+    ParamIdDataArray paramIds
+};
+
+Sequence WriteResponse
+{
+    U8 spare
+};
+
+Choice Message
+{
+    ReadRequest,
+    ReadResponse,
+    WriteIndication,
+    WriteRequest,
+    WriteResponse
+};
+
+Sequence FlyDbMessage
+{
+    U8 transactionId,
+    Message msg
+};
