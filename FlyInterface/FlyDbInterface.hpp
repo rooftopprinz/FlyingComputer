@@ -85,21 +85,21 @@ struct FlyDbMessage
 /
 ************************************************/
 
-void encode_per(const ParamIdData& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ParamIdData& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.id, pCtx);
     encode_per(pIe.data, 1, pCtx);
 }
 
-void decode_per(ParamIdData& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ParamIdData& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.id, pCtx);
     decode_per(pIe.data, 1, pCtx);
 }
 
-void str(const char* pName, const ParamIdData& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ParamIdData& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -121,19 +121,19 @@ void str(const char* pName, const ParamIdData& pIe, std::string& pCtx, bool pIsL
     }
 }
 
-void encode_per(const ReadRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramIds, 2, pCtx);
 }
 
-void decode_per(ReadRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramIds, 2, pCtx);
 }
 
-void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -154,19 +154,19 @@ void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsL
     }
 }
 
-void encode_per(const ReadResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(ReadResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -187,19 +187,19 @@ void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIs
     }
 }
 
-void encode_per(const WriteIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramIds, 2, pCtx);
 }
 
-void decode_per(WriteIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramIds, 2, pCtx);
 }
 
-void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -220,19 +220,19 @@ void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool 
     }
 }
 
-void encode_per(const WriteRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramIds, 2, pCtx);
 }
 
-void decode_per(WriteRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramIds, 2, pCtx);
 }
 
-void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -253,19 +253,19 @@ void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIs
     }
 }
 
-void encode_per(const WriteResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.spare, pCtx);
 }
 
-void decode_per(WriteResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.spare, pCtx);
 }
 
-void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -286,7 +286,7 @@ void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pI
     }
 }
 
-void encode_per(const Message& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const Message& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -314,7 +314,7 @@ void encode_per(const Message& pIe, cum::per_codec_ctx& pCtx)
     }
 }
 
-void decode_per(Message& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(Message& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -347,7 +347,7 @@ void decode_per(Message& pIe, cum::per_codec_ctx& pCtx)
     }
 }
 
-void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -378,21 +378,21 @@ void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
     }
 }
 
-void encode_per(const FlyDbMessage& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const FlyDbMessage& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.transactionId, pCtx);
     encode_per(pIe.msg, pCtx);
 }
 
-void decode_per(FlyDbMessage& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(FlyDbMessage& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.transactionId, pCtx);
     decode_per(pIe.msg, pCtx);
 }
 
-void str(const char* pName, const FlyDbMessage& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const FlyDbMessage& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)

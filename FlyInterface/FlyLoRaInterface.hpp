@@ -165,21 +165,21 @@ struct Itf
 /
 ************************************************/
 
-void encode_per(const ParamInfo& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ParamInfo& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(ParamInfo& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ParamInfo& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const ParamInfo& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ParamInfo& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -201,19 +201,19 @@ void str(const char* pName, const ParamInfo& pIe, std::string& pCtx, bool pIsLas
     }
 }
 
-void encode_per(const ReadRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
 }
 
-void decode_per(ReadRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
 }
 
-void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -234,19 +234,19 @@ void str(const char* pName, const ReadRequest& pIe, std::string& pCtx, bool pIsL
     }
 }
 
-void encode_per(const ReadGroupRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadGroupRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
 }
 
-void decode_per(ReadGroupRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadGroupRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
 }
 
-void str(const char* pName, const ReadGroupRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadGroupRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -267,21 +267,21 @@ void str(const char* pName, const ReadGroupRequest& pIe, std::string& pCtx, bool
     }
 }
 
-void encode_per(const ReadResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.reqSn, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(ReadResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.reqSn, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -303,21 +303,21 @@ void str(const char* pName, const ReadResponse& pIe, std::string& pCtx, bool pIs
     }
 }
 
-void encode_per(const WriteRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(WriteRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -339,21 +339,21 @@ void str(const char* pName, const WriteRequest& pIe, std::string& pCtx, bool pIs
     }
 }
 
-void encode_per(const WriteGroupRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteGroupRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(WriteGroupRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteGroupRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const WriteGroupRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteGroupRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -375,19 +375,19 @@ void str(const char* pName, const WriteGroupRequest& pIe, std::string& pCtx, boo
     }
 }
 
-void encode_per(const WriteResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.reqSn, pCtx);
 }
 
-void decode_per(WriteResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.reqSn, pCtx);
 }
 
-void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -408,21 +408,21 @@ void str(const char* pName, const WriteResponse& pIe, std::string& pCtx, bool pI
     }
 }
 
-void encode_per(const ReadIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(ReadIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const ReadIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -444,21 +444,21 @@ void str(const char* pName, const ReadIndication& pIe, std::string& pCtx, bool p
     }
 }
 
-void encode_per(const ReadGroupIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ReadGroupIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(ReadGroupIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ReadGroupIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const ReadGroupIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ReadGroupIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -480,21 +480,21 @@ void str(const char* pName, const ReadGroupIndication& pIe, std::string& pCtx, b
     }
 }
 
-void encode_per(const WriteIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(WriteIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -516,21 +516,21 @@ void str(const char* pName, const WriteIndication& pIe, std::string& pCtx, bool 
     }
 }
 
-void encode_per(const WriteGroupIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const WriteGroupIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.paramId, pCtx);
     encode_per(pIe.paramData, 2, pCtx);
 }
 
-void decode_per(WriteGroupIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(WriteGroupIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.paramId, pCtx);
     decode_per(pIe.paramData, 2, pCtx);
 }
 
-void str(const char* pName, const WriteGroupIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const WriteGroupIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -552,21 +552,21 @@ void str(const char* pName, const WriteGroupIndication& pIe, std::string& pCtx, 
     }
 }
 
-void encode_per(const ErrorIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ErrorIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.reqSn, pCtx);
     encode_per(pIe.cause, pCtx);
 }
 
-void decode_per(ErrorIndication& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ErrorIndication& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.reqSn, pCtx);
     decode_per(pIe.cause, pCtx);
 }
 
-void str(const char* pName, const ErrorIndication& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ErrorIndication& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -588,19 +588,19 @@ void str(const char* pName, const ErrorIndication& pIe, std::string& pCtx, bool 
     }
 }
 
-void encode_per(const ProtectAndCipherRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ProtectAndCipherRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.random, pCtx);
 }
 
-void decode_per(ProtectAndCipherRequest& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ProtectAndCipherRequest& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.random, pCtx);
 }
 
-void str(const char* pName, const ProtectAndCipherRequest& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ProtectAndCipherRequest& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -621,19 +621,19 @@ void str(const char* pName, const ProtectAndCipherRequest& pIe, std::string& pCt
     }
 }
 
-void encode_per(const ProtectAndCipherResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const ProtectAndCipherResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.res, pCtx);
 }
 
-void decode_per(ProtectAndCipherResponse& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(ProtectAndCipherResponse& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.res, pCtx);
 }
 
-void str(const char* pName, const ProtectAndCipherResponse& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const ProtectAndCipherResponse& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -654,7 +654,7 @@ void str(const char* pName, const ProtectAndCipherResponse& pIe, std::string& pC
     }
 }
 
-void encode_per(const MessageType& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const MessageType& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -714,7 +714,7 @@ void encode_per(const MessageType& pIe, cum::per_codec_ctx& pCtx)
     }
 }
 
-void decode_per(MessageType& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(MessageType& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -787,7 +787,7 @@ void decode_per(MessageType& pIe, cum::per_codec_ctx& pCtx)
     }
 }
 
-void str(const char* pName, const MessageType& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const MessageType& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     using TypeIndex = uint8_t;
@@ -850,21 +850,21 @@ void str(const char* pName, const MessageType& pIe, std::string& pCtx, bool pIsL
     }
 }
 
-void encode_per(const Message& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const Message& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.sequenceNumber, pCtx);
     encode_per(pIe.message, pCtx);
 }
 
-void decode_per(Message& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(Message& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.sequenceNumber, pCtx);
     decode_per(pIe.message, pCtx);
 }
 
-void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)
@@ -886,21 +886,21 @@ void str(const char* pName, const Message& pIe, std::string& pCtx, bool pIsLast)
     }
 }
 
-void encode_per(const Itf& pIe, cum::per_codec_ctx& pCtx)
+inline void encode_per(const Itf& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.msgAuthCode, pCtx);
     encode_per(pIe.encodedMessage, 2, pCtx);
 }
 
-void decode_per(Itf& pIe, cum::per_codec_ctx& pCtx)
+inline void decode_per(Itf& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.msgAuthCode, pCtx);
     decode_per(pIe.encodedMessage, 2, pCtx);
 }
 
-void str(const char* pName, const Itf& pIe, std::string& pCtx, bool pIsLast)
+inline void str(const char* pName, const Itf& pIe, std::string& pCtx, bool pIsLast)
 {
     using namespace cum;
     if (!pName)

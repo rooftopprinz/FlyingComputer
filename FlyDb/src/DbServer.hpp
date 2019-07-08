@@ -1,11 +1,14 @@
 #ifndef __DBSERVER_HPP__
 #define __DBSERVER_HPP__
 
-#include <Udp.hpp>
-#include <protocol.hpp>
-#include <Logger.hpp>
 #include <map>
+#include <Udp.hpp>
+#include <Logger.hpp>
+#include <protocol.hpp>
+#include <FlyDbInterface.hpp>
 
+
+using DbData = std::vector<uint8_t>;
 class DbServer
 {
 public:
@@ -15,134 +18,61 @@ public:
 
     void onReceive(const common::Buffer& pMessage, const net::IpPort& pAddr)
     {
-        flydb::Header header;
-        std::memcpy(&header, pMessage.data(), sizeof(header));
-        switch (header.msgType)
-        {
-            case flydb::MessageType::SetRequest:
-                onSetRequest(pMessage, pAddr);
-                break;
-            case flydb::MessageType::SetIndication:
-                onSetIndication(pMessage, pAddr);
-                break;
-            case flydb::MessageType::GetRequest:
-                onGetRequest(pMessage, pAddr);
-                break;
-            default:
-                Logless("ERR DbServer::onReceive - MessageId _ invalid.", (unsigned)header.msgType);
-        }
+        FlyDbMessage message;
+        cum::per_codec_ctx ctx(pMessage.data(), pMessage.size());
+        decode_per(message, ctx);
+        std::visit([this, &pAddr](auto&& pArg){this->handle(arg, pAddr)});
     }
 
 private:
-    void onGetRequest(const common::Buffer& pMessage, const net::IpPort& pAddr)
+    void handle(const ReadRequest& pMsg, const net::IpPort& pAddr)
     {
-        std::byte responseraw[1024];
-        flydb::Decoder<flydb::GetRequest>  requestDecoder(pMessage.data(), pMessage.size());
-        flydb::Encoder<flydb::GetResponse> responseEncoder(responseraw, sizeof(responseraw));
-        Logless("DBG DbServer::onGetRequest - message =_", BufferLog(pMessage.size(), (void*)pMessage.data()));
-
-        auto request = requestDecoder.get();
-        auto& response = responseEncoder.get();
-        response.trId = request.trId;
-
-        while (true)
+        ReadResponse response;
+        for (auto id : pMsg.paramIds)
         {
-            flydb::Key key;
-
-            if (!requestDecoder.getField(key))
+            response.paramData.emplace_back();
+            auto& respItem = response.paramData.back();
+            auto found = mDatabase.find(id);
+            if (found != mDatabase.end())
             {
-                break;
-            }
-
-            auto it = mDatabase.find(key);
-
-            std::byte* data = nullptr;
-            flydb::Size size = 0;
-
-            if (mDatabase.end() != it)
-            {
-                data = it->second.data();
-                size = it->second.size();
-            }
-
-            Logless("DBG DbServer::onGetRequest - Get [_] sz:_", (unsigned)key, (unsigned)size);
-            if (!responseEncoder.addField(key, data, size))
-            {
-                Logless("ERR DbServer::onGetRequest - unable to encode reponse!");
-                return;
+                respItem = *found;
             }
         }
 
-        mSocket.sendto(common::Buffer(responseraw, responseEncoder.size(), false), pAddr);
+        encodeAndSend(response, pAddr);
     }
 
-    void onSetRequest(const common::Buffer& pMessage, const net::IpPort& pAddr)
+    void handle(const WriteRequest& pMsg, const net::IpPort& pAddr)
     {
-        std::byte responseraw[1024];
-        flydb::Decoder<flydb::SetRequest>  requestDecoder(pMessage.data(), pMessage.size());
-        flydb::Encoder<flydb::SetResponse> responseEncoder(responseraw, sizeof(responseraw));
-
-        auto request = requestDecoder.get();
-        auto& response = responseEncoder.get();
-        response.trId = request.trId;
-
-        while (true)
+        WriteResponse response;
+        for (auto paramIdData : pMsg.paramIds)
         {
-            flydb::Key key;
-            const std::byte *data;
-            flydb::Size size;
-
-            if (!requestDecoder.getField(key, data, size))
-            {
-                break;
-            }
-
-            auto it = mDatabase.find(key);
-            if (mDatabase.end() != it && it->second.size()==size)
-            {
-                std::memcpy(it->second.data(), data, size);
-            }
-            else
-            {
-                std::byte* newdata = new std::byte[size];
-                std::memcpy(newdata, data, size);
-                mDatabase.emplace(key, common::Buffer(newdata, size));
-            }
+            auto& item = mDatabase[paramIdData.id];
+            item = std::move(paramIdData.data);
         }
-
-        mSocket.sendto(common::Buffer(responseraw, responseEncoder.size(), false), pAddr);
+        encodeAndSend(response, pAddr);
     }
 
-    void onSetIndication(const common::Buffer& pMessage, const net::IpPort& pAddr)
+    void handle(const WriteIndication& pMsg, const net::IpPort& pAddr)
     {
-        flydb::Decoder<flydb::SetRequest> requestDecoder(pMessage.data(), pMessage.size());
-
-        while (true)
+        for (auto paramIdData : pMsg.paramIds)
         {
-            flydb::Key key;
-            const std::byte *data;
-            flydb::Size size;
-
-            if (!requestDecoder.getField(key, data, size))
-            {
-                break;
-            }
-
-            auto it = mDatabase.find(key);
-            if (mDatabase.end() != it && it->second.size()==size)
-            {
-                std::memcpy(it->second.data(), data, size);
-            }
-            else
-            {
-                std::byte* newdata = new std::byte[size];
-                std::memcpy(newdata, data, size);
-                mDatabase.emplace(key, common::Buffer(newdata, size));
-            }
+            auto& item = mDatabase[paramIdData.id];
+            item = std::move(paramIdData.data);
         }
     }
 
-    std::map<uint8_t, common::Buffer> mDatabase;
+    template <typename T>
+    void encodeAndSend(const T& response, const net::IpPort& pAddr)
+    {
+        std::byte sendBuffer[512];
+        cum::per_codec_ctx ctx(sendBuffer, sizeof(sendBuffer));
+        encode_per(response, ctx);
+        auto encodeSize = sizeof(sendBuffer) - ctx.size();
+        mSocket.sendto(common::Buffer(sendBuffer, encodeSize, false), pAddr);
+    }
+
+    std::map<uint8_t, DbData> mDatabase;
     net::ISocket& mSocket;
 };
 
