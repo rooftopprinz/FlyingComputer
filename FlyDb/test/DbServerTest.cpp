@@ -42,25 +42,36 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
 {
     std::byte requestrawbuffer[1024];
     std::byte response0rawbuffer[1024];
-    // std::byte response1rawbuffer[1024];
+    std::byte response1rawbuffer[1024];
 
     net::IpPort from(4, 1555);
-    flydb::TrId trId = 0;
 
-    flydb::Encoder<flydb::SetResponse> setResponseEncoder(response0rawbuffer, sizeof(response0rawbuffer));
-    setResponseEncoder.get().trId = trId;
-    common::Buffer toReceive0(response0rawbuffer, setResponseEncoder.size(), false);
+    FlyDbMessage writeReponseMsg;
+    writeReponseMsg.msg = WriteResponse{};
+    auto& writeReponse = std::get<WriteResponse>(writeReponseMsg.msg);
+    writeReponseMsg.transactionId = 0;
+    writeReponse.spare = 0;
 
-    uint8_t getResponseRaw[] = {
-        (uint8_t)flydb::MessageType::GetResponse,
-        1,
-        3 + 6*3,
-        42, 4, 42, 0, 0, 0,
-        50, 4, 50, 0, 0, 0,
-        51, 4, 51, 0, 0, 0
-    };
+    cum::per_codec_ctx writeReponseCtx(response0rawbuffer, sizeof(response0rawbuffer));
+    encode_per(writeReponseMsg, writeReponseCtx);
+    auto writeReponseEncodeSize = sizeof(response0rawbuffer) - writeReponseCtx.size();
 
-    common::Buffer toReceive1((std::byte*)getResponseRaw, 21, false);
+    common::Buffer toReceive0(response0rawbuffer, writeReponseEncodeSize, false);
+
+    FlyDbMessage readResponseMsg;
+    readResponseMsg.msg = ReadResponse{};
+    readResponseMsg.transactionId = 1;
+    auto& readResponse = std::get<ReadResponse>(readResponseMsg.msg);
+    readResponse.paramData.emplace_back(ParamData{{42,0,0,0}});
+    readResponse.paramData.emplace_back(ParamData{{43,0}});
+    readResponse.paramData.emplace_back(ParamData{{44,0,0}});
+    readResponse.paramData.emplace_back(ParamData{{45,0,0,0,0,0,0,0}});
+
+    cum::per_codec_ctx readResponseCtx(response1rawbuffer, sizeof(response1rawbuffer));
+    encode_per(readResponseMsg, readResponseCtx);
+    auto readResponseCtxEncodeSize = sizeof(response1rawbuffer) - readResponseCtx.size();
+
+    common::Buffer toReceive1((std::byte*)response1rawbuffer, readResponseCtxEncodeSize, false);
 
     EXPECT_CALL(mockISocket, sendto(
         Truly([&toReceive0](const common::Buffer& a) {return isMessageEqual(a, toReceive0);}),
@@ -73,22 +84,36 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
         , 0)).RetiresOnSaturation();
 
     {
-        flydb::Encoder<flydb::SetRequest> setRequestEncoder(requestrawbuffer, sizeof(requestrawbuffer));
-        auto& request = setRequestEncoder.get();
-        request.trId = 0;
-        setRequestEncoder.addField(42, 42);
-        setRequestEncoder.addField(50, 50);
-        setRequestEncoder.addField(51, 51);
-        dbServer.onReceive(common::Buffer(requestrawbuffer, setRequestEncoder.size(), false), from);
+        FlyDbMessage msg;
+        msg.msg = WriteRequest{};
+        msg.transactionId = 0;
+        auto& request = std::get<WriteRequest>(msg.msg);
+        request.paramIds.emplace_back(ParamIdData{1, {{42,0,0,0}}});
+        request.paramIds.emplace_back(ParamIdData{2, {{43,0}}});
+        request.paramIds.emplace_back(ParamIdData{3, {{44,0,0}}});
+        request.paramIds.emplace_back(ParamIdData{4, {{45,0,0,0,0,0,0,0}}});
+
+        cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
+        encode_per(msg, ctx);
+        auto msgSize = sizeof(requestrawbuffer) - ctx.size();
+
+        dbServer.onReceive(common::Buffer(requestrawbuffer, msgSize, false), from);
     }
 
     {
-        flydb::Encoder<flydb::GetRequest> getRequestEncoder(requestrawbuffer, sizeof(requestrawbuffer));
-        auto& request = getRequestEncoder.get();
-        request.trId = 1;
-        getRequestEncoder.addField((flydb::Size)42);
-        getRequestEncoder.addField((flydb::Size)50);
-        getRequestEncoder.addField((flydb::Size)51);
-        dbServer.onReceive(common::Buffer(requestrawbuffer, getRequestEncoder.size(), false), from);
+        FlyDbMessage msg;
+        msg.msg = ReadRequest{};
+        msg.transactionId = 1;
+        auto& request = std::get<ReadRequest>(msg.msg);
+        request.paramIds.emplace_back(1);
+        request.paramIds.emplace_back(2);
+        request.paramIds.emplace_back(3);
+        request.paramIds.emplace_back(4);
+
+        cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
+        encode_per(msg, ctx);
+        auto msgSize = sizeof(requestrawbuffer) - ctx.size();
+
+        dbServer.onReceive(common::Buffer(requestrawbuffer, msgSize, false), from);
     }
 }

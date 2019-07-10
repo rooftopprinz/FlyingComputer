@@ -1,8 +1,9 @@
 // Type:  ('U8', {'type': 'unsigned'})
 // Type:  ('U8', {'width': '8'})
-// Type:  ('ParamData', {'type': 'unsigned'})
-// Type:  ('ParamData', {'dynamic_array': '255'})
-// Type:  ('ParamData', {'width': '8'})
+// Type:  ('Buffer', {'type': 'unsigned'})
+// Type:  ('Buffer', {'dynamic_array': '255'})
+// Type:  ('Buffer', {'width': '8'})
+// Sequence:  ParamData ('Buffer', 'value')
 // Sequence:  ParamIdData ('U8', 'id')
 // Sequence:  ParamIdData ('ParamData', 'data')
 // Type:  ('ParamIdArray', {'type': 'unsigned'})
@@ -37,7 +38,12 @@
 ************************************************/
 
 using U8 = uint8_t;
-using ParamData = std::vector<uint8_t>;
+using Buffer = std::vector<uint8_t>;
+struct ParamData
+{
+    Buffer value;
+};
+
 struct ParamIdData
 {
     U8 id;
@@ -85,18 +91,51 @@ struct FlyDbMessage
 /
 ************************************************/
 
+inline void encode_per(const ParamData& pIe, cum::per_codec_ctx& pCtx)
+{
+    using namespace cum;
+    encode_per(pIe.value, 1, pCtx);
+}
+
+inline void decode_per(ParamData& pIe, cum::per_codec_ctx& pCtx)
+{
+    using namespace cum;
+    decode_per(pIe.value, 1, pCtx);
+}
+
+inline void str(const char* pName, const ParamData& pIe, std::string& pCtx, bool pIsLast)
+{
+    using namespace cum;
+    if (!pName)
+    {
+        pCtx = pCtx + "{";
+    }
+    else
+    {
+        pCtx = pCtx + "\"" + pName + "\":{";
+    }
+    size_t nOptional = 0;
+    size_t nMandatory = 1;
+    str("value", pIe.value, pCtx, !(--nMandatory+nOptional));
+    pCtx = pCtx + "}";
+    if (!pIsLast)
+    {
+        pCtx += ",";
+    }
+}
+
 inline void encode_per(const ParamIdData& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     encode_per(pIe.id, pCtx);
-    encode_per(pIe.data, 1, pCtx);
+    encode_per(pIe.data, pCtx);
 }
 
 inline void decode_per(ParamIdData& pIe, cum::per_codec_ctx& pCtx)
 {
     using namespace cum;
     decode_per(pIe.id, pCtx);
-    decode_per(pIe.data, 1, pCtx);
+    decode_per(pIe.data, pCtx);
 }
 
 inline void str(const char* pName, const ParamIdData& pIe, std::string& pCtx, bool pIsLast)

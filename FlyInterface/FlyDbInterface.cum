@@ -1,5 +1,10 @@
 Type U8               {type(unsigned)     width(8)};
-Type ParamData        {type(unsigned)     dynamic_array(255) width(8)};
+Type Buffer           {type(unsigned)     dynamic_array(255) width(8)};
+
+Sequence ParamData
+{
+    Buffer value
+};
 
 Sequence ParamIdData
 {
@@ -7,7 +12,7 @@ Sequence ParamIdData
     ParamData data
 };
 
-Type ParamIdArray     {type(unsigned)     dynamic_array(256) width(8)};
+Type ParamIdArray     {type(unsigned)    dynamic_array(256) width(8)};
 Type ParamDataArray   {type(ParamData)   dynamic_array(256)};
 Type ParamIdDataArray {type(ParamIdData) dynamic_array(256)};
 

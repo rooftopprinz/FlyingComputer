@@ -16,49 +16,61 @@ public:
         : mSocket(pSocket)
     {}
 
-    void onReceive(const common::Buffer& pMessage, const net::IpPort& pAddr)
+    void onReceive(common::Buffer&& pMessage, const net::IpPort& pAddr)
     {
         FlyDbMessage message;
         cum::per_codec_ctx ctx(pMessage.data(), pMessage.size());
         decode_per(message, ctx);
-        std::visit([this, &pAddr](auto&& pArg){this->handle(arg, pAddr)});
+        std::visit([this, &pAddr, &message](auto&& pArg){this->handle(message, pArg, pAddr);}, message.msg);
     }
 
 private:
-    void handle(const ReadRequest& pMsg, const net::IpPort& pAddr)
+    template <typename S, typename T>
+    void handle(S&&, T&&, const net::IpPort&)
+    {}
+
+    void handle(FlyDbMessage& pRootMsg, ReadRequest& pMsg, const net::IpPort& pAddr)
     {
-        ReadResponse response;
+        FlyDbMessage responseRoot;
+        responseRoot.msg = ReadResponse{};
+        auto& response = std::get<ReadResponse>(responseRoot.msg);
+        responseRoot.transactionId = pRootMsg.transactionId;
+
         for (auto id : pMsg.paramIds)
         {
             response.paramData.emplace_back();
-            auto& respItem = response.paramData.back();
+            auto& respItem = response.paramData.back().value;
             auto found = mDatabase.find(id);
             if (found != mDatabase.end())
             {
-                respItem = *found;
+                respItem = found->second;
             }
         }
 
-        encodeAndSend(response, pAddr);
+        encodeAndSend(responseRoot, pAddr);
     }
 
-    void handle(const WriteRequest& pMsg, const net::IpPort& pAddr)
+    void handle(FlyDbMessage& pRootMsg, WriteRequest& pMsg, const net::IpPort& pAddr)
     {
-        WriteResponse response;
+        FlyDbMessage responseRoot;
+        responseRoot.msg = WriteResponse{};
+        auto& response = std::get<WriteResponse>(responseRoot.msg);
+        responseRoot.transactionId = pRootMsg.transactionId;
+        response.spare = 0;
         for (auto paramIdData : pMsg.paramIds)
         {
             auto& item = mDatabase[paramIdData.id];
-            item = std::move(paramIdData.data);
+            item = std::move(paramIdData.data.value);
         }
-        encodeAndSend(response, pAddr);
+        encodeAndSend(responseRoot, pAddr);
     }
 
-    void handle(const WriteIndication& pMsg, const net::IpPort& pAddr)
+    void handle(FlyDbMessage&, WriteIndication& pMsg, const net::IpPort& pAddr)
     {
         for (auto paramIdData : pMsg.paramIds)
         {
             auto& item = mDatabase[paramIdData.id];
-            item = std::move(paramIdData.data);
+            item = std::move(paramIdData.data.value);
         }
     }
 
