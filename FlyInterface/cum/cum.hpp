@@ -12,6 +12,138 @@
 namespace cum
 {
 
+template<typename T, size_t N>
+class static_array
+{
+public:
+    static_array() = default;
+
+    ~static_array()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        size_t oSize = mSize;
+        for (size_t i=0; i<oSize; i++)
+        {
+            pop();
+        }
+    }
+
+    static_array(const std::initializer_list<T>& pList)
+    {
+        for (auto& i : pList)
+        {
+            emplace(i);
+        }
+    }
+
+    static_array& operator=(const std::initializer_list<T>& pList)
+    {
+        clear();
+        for (auto& i : pList)
+        {
+            emplace(i);
+        }
+        return *this;
+    }
+
+    template <typename... U>
+    T& emplace_back(U&&... pArgs)
+    {
+        new ((T*)mData+mSize) T(std::forward<T>(pArgs)...);
+        mSize++;
+        return back();
+    }
+
+    T& operator[](size_t pIndex)
+    {
+        return ((T*)mData)[pIndex];
+    }
+
+    const T& operator[](size_t pIndex) const
+    {
+        return ((T*)mData)[pIndex];
+    }
+
+    void pop()
+    {
+        (*this)[--mSize].~T();
+    }
+
+    T* begin()
+    {
+        return (T*)mData;
+    }
+
+    T* end()
+    {
+        return ((T*)mData)+mSize;
+    }
+
+    const T* begin() const
+    {
+        return (T*)mData;
+    }
+
+    const T* end() const
+    {
+        return ((T*)mData)+mSize;
+    }
+
+    T& front()
+    {
+        return *begin();
+    }
+
+    T& back()
+    {
+        return *(end()-1);
+    }
+
+    const T& front() const
+    {
+        return *begin();
+    }
+
+    const T& back() const
+    {
+        return *(end()-1);
+    }
+
+    const T* cbegin()
+    {
+        return (T*)mData;
+    }
+
+    const T* cend()
+    {
+        return ((T*)mData)+mSize;
+    }
+
+    const T* cbegin() const
+    {
+        return (T*)mData;
+    }
+
+    const T* cend() const
+    {
+        return ((T*)mData)+mSize;
+    }
+
+
+    size_t size() const
+    {
+        return mSize;
+    }
+
+private:
+    size_t mSize = 0;
+    uint8_t mData[sizeof(T)*N];
+};
+
 class per_codec_ctx
 {
 public:
@@ -178,6 +310,58 @@ void decode_per(std::vector<T>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
 
 template <typename T>
 void str(const char* pName, const std::vector<T>& pIe, std::string& pCtx, bool pIsLast)
+{
+    if (!pName)
+    {
+        pCtx = pCtx + "[";
+    }
+    else
+    {
+        pCtx = pCtx + "\"" + pName + "\":[";
+    }
+    for (size_t i=0; i<pIe.size();i++)
+    {
+        str(nullptr, pIe[i], pCtx, (i>=pIe.size()-1) ? true : false);
+    }
+    pCtx += "]";
+    if (!pIsLast)
+    {
+        pCtx += ",";
+    }
+}
+
+
+template <typename T, size_t N>
+void encode_per(const static_array<T, N>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
+{
+    if (pIndexSize > pCtx.size())
+        throw std::out_of_range(__PRETTY_FUNCTION__);
+    size_t size = pIe.size();
+    encode_per((uint8_t*)&size, pIndexSize, pCtx);
+    for (auto& i : pIe)
+    {
+        encode_per(i, pCtx);
+    }
+}
+
+template <typename T, size_t N>
+void decode_per(static_array<T, N>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
+{
+    if (pIndexSize > pCtx.size())
+    {
+        throw std::out_of_range(__PRETTY_FUNCTION__);
+    }
+    size_t size = 0;
+    decode_per((uint8_t*)&size, pIndexSize, pCtx);
+    for (size_t i=0u; i<size; i++)
+    {
+        pIe.emplace_back();
+        decode_per(pIe.back(), pCtx);
+    }
+}
+
+template <typename T, size_t N>
+void str(const char* pName, const static_array<T, N>& pIe, std::string& pCtx, bool pIsLast)
 {
     if (!pName)
     {

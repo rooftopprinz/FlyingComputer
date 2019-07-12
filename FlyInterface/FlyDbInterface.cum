@@ -1,9 +1,34 @@
 Type U8               {type(unsigned)     width(8)};
-Type Buffer           {type(unsigned)     dynamic_array(255) width(8)};
+Type U16              {type(unsigned)     width(16)};
+Type U32              {type(unsigned)     width(32)};
+Type U64              {type(unsigned)     width(64)};
+Type I8               {type(signed)       width(8)};
+Type I16              {type(signed)       width(16)};
+Type I32              {type(signed)       width(32)};
+Type I64              {type(signed)       width(64)};
+Type F32              {type(float)};
+Type F64              {type(double)};
 
-Sequence ParamData
+Type ParamId          {type(unsigned)     width(8)};
+
+Sequence NoChoice
 {
-    Buffer value
+    U8 spare
+};
+
+Choice ParamData
+{
+    NoChoice,
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64
 };
 
 Sequence ParamIdData
@@ -12,13 +37,13 @@ Sequence ParamIdData
     ParamData data
 };
 
-Type ParamIdArray     {type(unsigned)    dynamic_array(256) width(8)};
-Type ParamDataArray   {type(ParamData)   dynamic_array(256)};
-Type ParamIdDataArray {type(ParamIdData) dynamic_array(256)};
+Type ParamIdArray     {type(ParamId)     static_array(16)};
+Type ParamDataArray   {type(ParamData)   static_array(16)};
+Type ParamIdDataArray {type(ParamIdData) static_array(16)};
 
 Sequence ReadRequest
 {
-    ParamIdArray paramIds
+    ParamIdArray paramId
 };
 
 Sequence ReadResponse
@@ -28,12 +53,12 @@ Sequence ReadResponse
 
 Sequence WriteIndication
 {
-    ParamIdDataArray paramIds
+    ParamIdDataArray paramIdData
 };
 
 Sequence WriteRequest
 {
-    ParamIdDataArray paramIds
+    ParamIdDataArray paramIdData
 };
 
 Sequence WriteResponse

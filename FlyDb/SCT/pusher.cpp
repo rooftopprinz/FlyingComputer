@@ -1,5 +1,6 @@
 #include <Udp.hpp>
 #include <Logger.hpp>
+#include <FlyDbInterface.hpp>
 #include <protocol.hpp>
 
 int main(int argc, const char *argv[])
@@ -35,16 +36,25 @@ int main(int argc, const char *argv[])
         // SET REQUEST
         {
             Logless("SET REQUEST \\");
-            flydb::Encoder<flydb::SetRequest> setRequestEncoder(requestrawbuffer, sizeof(requestrawbuffer));
-            setRequestEncoder.get().trId = trId;
             auto trId0 = trId++;
-            for (flydb::Key j=0; j<count; j++)
             {
-                setRequestEncoder.addField(base+j, i);
-                Logless("setting [_]=_", base+j, i);
+                FlyDbMessage msg;
+                msg.msg = WriteRequest{};
+                msg.transactionId = trId0;
+                auto& request = std::get<WriteRequest>(msg.msg);
+                for (uint8_t j=0u; j<count; j++)
+                {
+                    std::vector<uint8_t> buff;
+                    buff.assign((uint8_t*)&i, (uint8_t*)&i+sizeof(i));
+                    request.paramIds.emplace_back(ParamIdData{1, {{}}});
+                    Logless("setting [_]=_", base+j, i);
+                }
+                cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
+                encode_per(msg, ctx);
+                auto msgSize = sizeof(requestrawbuffer) - ctx.size();
+                sock.sendto(common::Buffer(requestrawbuffer, msgSize, false), serveraddr);
             }
             Logless("SET REQUEST /");
-            sock.sendto(common::Buffer(requestrawbuffer, setRequestEncoder.size(), false), serveraddr);
 
             auto rc = sock.recvfrom(responsebuffer, rcvaddr);
 

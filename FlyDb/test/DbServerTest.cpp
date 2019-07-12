@@ -62,10 +62,10 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
     readResponseMsg.msg = ReadResponse{};
     readResponseMsg.transactionId = 1;
     auto& readResponse = std::get<ReadResponse>(readResponseMsg.msg);
-    readResponse.paramData.emplace_back(ParamData{{42,0,0,0}});
-    readResponse.paramData.emplace_back(ParamData{{43,0}});
-    readResponse.paramData.emplace_back(ParamData{{44,0,0}});
-    readResponse.paramData.emplace_back(ParamData{{45,0,0,0,0,0,0,0}});
+    readResponse.paramData.emplace_back(int8_t(42));
+    readResponse.paramData.emplace_back(uint8_t(12));
+    readResponse.paramData.emplace_back(int16_t(14));
+    readResponse.paramData.emplace_back(uint32_t(44));
 
     cum::per_codec_ctx readResponseCtx(response1rawbuffer, sizeof(response1rawbuffer));
     encode_per(readResponseMsg, readResponseCtx);
@@ -88,10 +88,10 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
         msg.msg = WriteRequest{};
         msg.transactionId = 0;
         auto& request = std::get<WriteRequest>(msg.msg);
-        request.paramIds.emplace_back(ParamIdData{1, {{42,0,0,0}}});
-        request.paramIds.emplace_back(ParamIdData{2, {{43,0}}});
-        request.paramIds.emplace_back(ParamIdData{3, {{44,0,0}}});
-        request.paramIds.emplace_back(ParamIdData{4, {{45,0,0,0,0,0,0,0}}});
+        request.paramIdData.emplace_back(ParamIdData{1, int8_t(42)});
+        request.paramIdData.emplace_back(ParamIdData{2, uint8_t(12)});
+        request.paramIdData.emplace_back(ParamIdData{3, int16_t(14)});
+        request.paramIdData.emplace_back(ParamIdData{4, uint32_t(44)});
 
         cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
         encode_per(msg, ctx);
@@ -105,10 +105,10 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
         msg.msg = ReadRequest{};
         msg.transactionId = 1;
         auto& request = std::get<ReadRequest>(msg.msg);
-        request.paramIds.emplace_back(1);
-        request.paramIds.emplace_back(2);
-        request.paramIds.emplace_back(3);
-        request.paramIds.emplace_back(4);
+        request.paramId.emplace_back(1);
+        request.paramId.emplace_back(2);
+        request.paramId.emplace_back(3);
+        request.paramId.emplace_back(4);
 
         cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
         encode_per(msg, ctx);

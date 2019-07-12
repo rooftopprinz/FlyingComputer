@@ -7,8 +7,6 @@
 #include <protocol.hpp>
 #include <FlyDbInterface.hpp>
 
-
-using DbData = std::vector<uint8_t>;
 class DbServer
 {
 public:
@@ -36,10 +34,10 @@ private:
         auto& response = std::get<ReadResponse>(responseRoot.msg);
         responseRoot.transactionId = pRootMsg.transactionId;
 
-        for (auto id : pMsg.paramIds)
+        for (auto id : pMsg.paramId)
         {
             response.paramData.emplace_back();
-            auto& respItem = response.paramData.back().value;
+            auto& respItem = response.paramData.back();
             auto found = mDatabase.find(id);
             if (found != mDatabase.end())
             {
@@ -57,20 +55,20 @@ private:
         auto& response = std::get<WriteResponse>(responseRoot.msg);
         responseRoot.transactionId = pRootMsg.transactionId;
         response.spare = 0;
-        for (auto paramIdData : pMsg.paramIds)
+        for (auto paramIdData : pMsg.paramIdData)
         {
             auto& item = mDatabase[paramIdData.id];
-            item = std::move(paramIdData.data.value);
+            item = std::move(paramIdData.data);
         }
         encodeAndSend(responseRoot, pAddr);
     }
 
     void handle(FlyDbMessage&, WriteIndication& pMsg, const net::IpPort& pAddr)
     {
-        for (auto paramIdData : pMsg.paramIds)
+        for (auto paramIdData : pMsg.paramIdData)
         {
             auto& item = mDatabase[paramIdData.id];
-            item = std::move(paramIdData.data.value);
+            item = std::move(paramIdData.data);
         }
     }
 
@@ -84,7 +82,7 @@ private:
         mSocket.sendto(common::Buffer(sendBuffer, encodeSize, false), pAddr);
     }
 
-    std::map<uint8_t, DbData> mDatabase;
+    std::map<uint8_t, ParamData> mDatabase;
     net::ISocket& mSocket;
 };
 
