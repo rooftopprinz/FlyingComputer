@@ -53,6 +53,10 @@ public:
     template <typename... U>
     T& emplace_back(U&&... pArgs)
     {
+        if (mSize >= N)
+        {
+            throw std::out_of_range("trying to emplace when size() >= N");
+        }
         new ((T*)mData+mSize) T(std::forward<T>(pArgs)...);
         mSize++;
         return back();
@@ -177,7 +181,7 @@ private:
 inline void encode_per(const uint8_t *pIeOctet, size_t pSize, per_codec_ctx& pCtx)
 {
     if (pSize > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": not enough encode buffer.");
     std::memcpy(pCtx.get(), pIeOctet, pSize);
     pCtx.advance(pSize);
 }
@@ -185,7 +189,7 @@ inline void encode_per(const uint8_t *pIeOctet, size_t pSize, per_codec_ctx& pCt
 inline void decode_per(uint8_t *pIeOctet, size_t pSize, per_codec_ctx& pCtx)
 {
     if (pSize > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
     std::memcpy(pIeOctet, pCtx.get(), pSize);
     pCtx.advance(pSize);
 }
@@ -194,7 +198,7 @@ template <typename T>
 inline void encode_per(const T pIe, per_codec_ctx& pCtx)
 {
     if (sizeof(pIe) > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": not enough encode buffer.");
     new (pCtx.get()) decltype(pIe)(pIe);
     pCtx.advance(sizeof(pIe));
 }
@@ -203,7 +207,7 @@ template <typename T>
 inline void decode_per(T& pIe, per_codec_ctx& pCtx)
 {
     if (sizeof(pIe) > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
     std::memcpy(&pIe, pCtx.get(), sizeof(pIe));
     pCtx.advance(sizeof(pIe));
 }
@@ -247,7 +251,7 @@ inline void encode_per(const std::string& pIe, per_codec_ctx& pCtx)
 {
     const size_t strsz = pIe.size()+1;
     if (strsz > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": not enough encode buffer.");
     std::memcpy(pCtx.get(), pIe.data(), strsz);
     pCtx.advance(strsz);
 }
@@ -258,7 +262,7 @@ inline void decode_per(std::string& pIe, per_codec_ctx& pCtx)
     pIe = (const char*)pCtx.get();
     const size_t strsz = pIe.size()+1;
     if (strsz > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
     pCtx.advance(strsz);
 }
 
@@ -283,7 +287,7 @@ template <typename T>
 void encode_per(const std::vector<T>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
 {
     if (pIndexSize > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": not enough encode buffer.");
     size_t size = pIe.size();
     encode_per((uint8_t*)&size, pIndexSize, pCtx);
     for (auto& i : pIe)
@@ -297,7 +301,7 @@ void decode_per(std::vector<T>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
 {
     if (pIndexSize > pCtx.size())
     {
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
     }
     size_t size = 0;
     decode_per((uint8_t*)&size, pIndexSize, pCtx);
@@ -335,7 +339,7 @@ template <typename T, size_t N>
 void encode_per(const static_array<T, N>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
 {
     if (pIndexSize > pCtx.size())
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": not enough encode buffer.");
     size_t size = pIe.size();
     encode_per((uint8_t*)&size, pIndexSize, pCtx);
     for (auto& i : pIe)
@@ -349,10 +353,14 @@ void decode_per(static_array<T, N>& pIe, size_t pIndexSize, per_codec_ctx& pCtx)
 {
     if (pIndexSize > pCtx.size())
     {
-        throw std::out_of_range(__PRETTY_FUNCTION__);
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
     }
     size_t size = 0;
     decode_per((uint8_t*)&size, pIndexSize, pCtx);
+    if (size>N)
+    {
+        throw std::out_of_range(std::string(__PRETTY_FUNCTION__)+": decode attempted past end of buffer.");
+    }
     for (size_t i=0u; i<size; i++)
     {
         pIe.emplace_back();

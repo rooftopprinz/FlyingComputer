@@ -18,8 +18,8 @@ int main(int argc, const char *argv[])
     Logless("base=_ count=_", base, count);
 
     timeval tv;
-    tv.tv_sec = 1;
-    tv.tv_usec = 0;
+    tv.tv_sec = 0;
+    tv.tv_usec = 10000;
 
     sock.setsockopt(SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
 
@@ -30,13 +30,13 @@ int main(int argc, const char *argv[])
 
     int i = 0;
     uint8_t trId = 0;
-    for (;;i++)
+    for (;;i++,trId++)
     {
 
         // SET REQUEST
         {
-            Logless("SET REQUEST \\");
             auto trId0 = trId++;
+            Logless("SET REQUEST trid=_ \\", (unsigned)trId0);
             {
                 FlyDbMessage msg;
                 msg.msg = WriteRequest{};
@@ -44,9 +44,7 @@ int main(int argc, const char *argv[])
                 auto& request = std::get<WriteRequest>(msg.msg);
                 for (uint8_t j=0u; j<count; j++)
                 {
-                    std::vector<uint8_t> buff;
-                    buff.assign((uint8_t*)&i, (uint8_t*)&i+sizeof(i));
-                    request.paramIds.emplace_back(ParamIdData{1, {{}}});
+                    request.paramIdData.emplace_back(ParamIdData{uint8_t(base+j), i});
                     Logless("setting [_]=_", base+j, i);
                 }
                 cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
@@ -61,15 +59,17 @@ int main(int argc, const char *argv[])
             Logless("SET RESPONSE \\");
             if (rc>0)
             {
-                flydb::Decoder<flydb::SetResponse> setResponseDecoder(responserawbuffer, sizeof(responserawbuffer));
-                auto response = setResponseDecoder.get();
-                if (response.trId != trId0)
+                FlyDbMessage response {};
+                cum::per_codec_ctx ctx(responserawbuffer, rc);
+                decode_per(response, ctx);
+
+                if (response.transactionId != trId0)
                 {
-                    Logless("Received trId expected:_ actual:_", (unsigned)trId0, (unsigned)response.trId);
+                    Logless("Received trId expected:_ actual:_", (unsigned)trId0, (unsigned)response.transactionId);
                 }
-                else if (response.msgType != flydb::MessageType::SetResponse)
+                else if (4 != response.msg.index())
                 {
-                    Logless("Received response unexpected:_", (unsigned)response.msgType);
+                    Logless("Received response unexpected:_", response.msg.index());
                 }
             }
             else
@@ -81,59 +81,62 @@ int main(int argc, const char *argv[])
 
         // GET
         {
-            Logless("GET REQUEST \\");
-            flydb::Encoder<flydb::GetRequest> getRequestEncoder(requestrawbuffer, sizeof(requestrawbuffer));
-            getRequestEncoder.get().trId = trId;
             auto trId0 = trId++;
-
-            for (flydb::Key j=0; j<count; j++)
+            Logless("GET REQUEST \\");
             {
-                getRequestEncoder.addField(flydb::Key(base+j));
-                Logless("getting [_]", base+j);
+                FlyDbMessage msg;
+                msg.msg = ReadRequest{};
+                msg.transactionId = trId0;
+                auto& request = std::get<ReadRequest>(msg.msg);
+                for (uint8_t j=0u; j<count; j++)
+                {
+                    request.paramId.emplace_back(uint8_t(base+j));
+                    Logless("getting [_]", base+j);
+                }
+                cum::per_codec_ctx ctx(requestrawbuffer, sizeof(requestrawbuffer));
+                encode_per(msg, ctx);
+                auto msgSize = sizeof(requestrawbuffer) - ctx.size();
+                sock.sendto(common::Buffer(requestrawbuffer, msgSize, false), serveraddr);
             }
             Logless("GET REQUEST /");
-
-            sock.sendto(common::Buffer(requestrawbuffer, getRequestEncoder.size(), false), serveraddr);
 
             auto rc = sock.recvfrom(responsebuffer, rcvaddr);
 
             Logless("GET RESPONSE \\");
-            Logless("message =_", BufferLog(rc, responserawbuffer));
             if (rc>0)
             {
-                flydb::Decoder<flydb::GetResponse> getResponseDecoder(responserawbuffer, rc);
-                auto response = getResponseDecoder.get();
-                int j = 0;
-                while (true)
+                FlyDbMessage msg {};
+                cum::per_codec_ctx ctx(responserawbuffer, rc);
+                decode_per(msg, ctx);
+
+                if (msg.transactionId != trId0)
                 {
-                    flydb::Key key;
-                    int value;
-                    if (!getResponseDecoder.getField(key, value))
+                    Logless("Received trId expected:_ actual:_", (unsigned)trId0, (unsigned)msg.transactionId);
+                }
+                else if (1 != msg.msg.index())
+                {
+                    Logless("Received response unexpected:_", msg.msg.index());
+                }
+                else
+                {
+                    auto& response = std::get<ReadResponse>(msg.msg);
+                    int i = 0;
+                    for (auto& e : response.paramData)
                     {
-                        break;
+                        std::visit([i](auto&& pData){
+                            using DATA_TYPE = std::decay_t<decltype(pData)>;
+                            if constexpr (std::is_same_v<DATA_TYPE, int>)
+                            {
+                                Logless("get [_] = _", i, pData);
+                            }
+                            else
+                            {
+                                Logless("get [_] is unuset", i);
+
+                            }}, e);
+                        i++;
                     }
-                    if (key!=base+j || value!=i)
-                    {
-                        Logless("Get [_]=_ is unexpected!", key, value);
-                        break;
-                    }
-                    j++;
                 }
-
-                if (j!=count)
-                {
-                    Logless("Get items unexpected! expected=_ acutal=_", count, j);
-                }
-
-                if (response.trId != trId0)
-                {
-                    Logless("Received trId expected:_ actual:_", (unsigned)trId0, (unsigned)response.trId);
-                }
-                if (response.msgType != flydb::MessageType::GetResponse)
-                {
-                    Logless("Received response unexpected:_", (unsigned)response.msgType);
-                }
-
             }
             else
             {

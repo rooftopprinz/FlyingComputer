@@ -14,21 +14,54 @@ public:
         : mSocket(pSocket)
     {}
 
-    void onReceive(common::Buffer&& pMessage, const net::IpPort& pAddr)
+    void onReceive(common::Buffer&& pMessageBuffer, const net::IpPort& pAddr)
     {
-        FlyDbMessage message;
-        cum::per_codec_ctx ctx(pMessage.data(), pMessage.size());
-        decode_per(message, ctx);
+        auto trace = Trace("onReceive()");
+        Logless("Received from _:_ data=_", pAddr.addr, pAddr.port, BufferLog(pMessageBuffer.size(), pMessageBuffer.data()));
+        FlyDbMessage message {};
+        cum::per_codec_ctx ctx(pMessageBuffer.data(), pMessageBuffer.size());
+        try
+        {
+            decode_per(message, ctx);
+        }
+        catch(std::exception& e)
+        {
+            Logless("Receive decode failed! what=_", e.what());
+        }
+
+        std::string receivedMsgStr;
+        str("FlyDbMessage", message, receivedMsgStr, true);
+        Logless("Received message: _", receivedMsgStr.c_str());
         std::visit([this, &pAddr, &message](auto&& pArg){this->handle(message, pArg, pAddr);}, message.msg);
     }
 
 private:
+    class Trace
+    {
+    public:
+        Trace(const char* pName)
+            : mName(pName)
+        {
+            Logless("TRACE _ \\", mName);
+        }
+        ~Trace()
+        {
+            Logless("TRACE _ /", mName);
+        }
+    private:
+        const char* mName = nullptr;
+    };
+
     template <typename S, typename T>
     void handle(S&&, T&&, const net::IpPort&)
-    {}
+    {
+        auto trace = Trace("handle(): generic");
+    }
 
     void handle(FlyDbMessage& pRootMsg, ReadRequest& pMsg, const net::IpPort& pAddr)
     {
+        auto trace = Trace("handle(): ReadRequest");
+
         FlyDbMessage responseRoot;
         responseRoot.msg = ReadResponse{};
         auto& response = std::get<ReadResponse>(responseRoot.msg);
@@ -50,6 +83,8 @@ private:
 
     void handle(FlyDbMessage& pRootMsg, WriteRequest& pMsg, const net::IpPort& pAddr)
     {
+        auto trace = Trace("handle(): WriteRequest");
+
         FlyDbMessage responseRoot;
         responseRoot.msg = WriteResponse{};
         auto& response = std::get<WriteResponse>(responseRoot.msg);
@@ -65,6 +100,7 @@ private:
 
     void handle(FlyDbMessage&, WriteIndication& pMsg, const net::IpPort& pAddr)
     {
+        auto trace = Trace("handle(): WriteIndication");
         for (auto paramIdData : pMsg.paramIdData)
         {
             auto& item = mDatabase[paramIdData.id];
@@ -73,12 +109,19 @@ private:
     }
 
     template <typename T>
-    void encodeAndSend(const T& response, const net::IpPort& pAddr)
+    void encodeAndSend(const T& pResponse, const net::IpPort& pAddr)
     {
+        auto trace = Trace("encodeAndSend()");
+
+        std::string msgRespStr;
+        str("FlyDbMessage", pResponse, msgRespStr, true);
+        Logless("to encode message: _", msgRespStr.c_str());
+
         std::byte sendBuffer[512];
         cum::per_codec_ctx ctx(sendBuffer, sizeof(sendBuffer));
-        encode_per(response, ctx);
+        encode_per(pResponse, ctx);
         auto encodeSize = sizeof(sendBuffer) - ctx.size();
+        Logless("Sending to _:_ data=_", pAddr.addr, pAddr.port, BufferLog(encodeSize, sendBuffer));
         mSocket.sendto(common::Buffer(sendBuffer, encodeSize, false), pAddr);
     }
 

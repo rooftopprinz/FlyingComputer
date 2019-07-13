@@ -10,6 +10,7 @@ Type F32              {type(float)};
 Type F64              {type(double)};
 
 Type ParamId          {type(unsigned)     width(8)};
+Type OctetString      {type(unsigned)     width(8)      dynamic_array(255)};
 
 Sequence NoChoice
 {
@@ -28,7 +29,8 @@ Choice ParamData
     I32,
     I64,
     F32,
-    F64
+    F64,
+    OctetString
 };
 
 Sequence ParamIdData
