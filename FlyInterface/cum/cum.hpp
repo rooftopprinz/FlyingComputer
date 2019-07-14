@@ -23,6 +23,44 @@ public:
         clear();
     }
 
+    static_array(const static_array& pOther)
+    {
+        for (auto& i: pOther)
+        {
+            emplace(i);
+        }
+    }
+
+    static_array(static_array&& pOther)
+    {
+        for (auto& i: pOther)
+        {
+            emplace_back(std::move(i));
+        }
+        pOther.clear();
+    }
+
+    static_array& operator=(const static_array& pOther)
+    {
+        clear();
+        for (auto& i: pOther)
+        {
+            emplace_back(i);
+        }
+        return *this;
+    }
+
+    static_array& operator=(static_array&& pOther)
+    {
+        clear();
+        for (auto& i: pOther)
+        {
+            emplace_back(std::move(i));
+        }
+        pOther.clear();
+        return *this;
+    }
+
     void clear()
     {
         size_t oSize = mSize;
@@ -36,7 +74,7 @@ public:
     {
         for (auto& i : pList)
         {
-            emplace(i);
+            emplace_back(i);
         }
     }
 
@@ -45,7 +83,7 @@ public:
         clear();
         for (auto& i : pList)
         {
-            emplace(i);
+            emplace_back(i);
         }
         return *this;
     }
@@ -57,7 +95,7 @@ public:
         {
             throw std::out_of_range("trying to emplace when size() >= N");
         }
-        new ((T*)mData+mSize) T(std::forward<T>(pArgs)...);
+        new ((T*)mData+mSize) T(std::forward<U>(pArgs)...);
         mSize++;
         return back();
     }
