@@ -1,7 +1,5 @@
 #!/bin/sh
 
-git submodule update --recursive
+git submodule update --init --recursive
 
-cd Logless && mkdir build && cd build && ../configure
-make logless
-make spawner
+cd Logless && mkdir -p build && cd build && ../configure.py && make logless.a && make spawner

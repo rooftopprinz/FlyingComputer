@@ -17,6 +17,7 @@ class Build:
         self.output_file = ''
         self.src_dir = ''
         self.dependencies = []
+        self.external_dependencies = []
         self.target_type = 0
         self.cxxflags = ''
         self.linkflags = ''
@@ -27,7 +28,7 @@ class Build:
     def set_linkflags(self, f):
         self.linkflags = f
     def set_src_dir(self, d):
-        self.src_dir = d
+        self.src_dir = TLD+d
     def add_src_files(self, f):
         self.name = f
         self.input_files.extend(f)
@@ -41,6 +42,8 @@ class Build:
         self.target_type = 1
     def add_dependencies(self, d):
         self.dependencies.extend(d)
+    def add_external_dependencies(self, d):
+        self.external_dependencies.extend(d)
     def generate_make(self):
         output = ''
         objects = [self.name+'/'+i+'.o' for i in self.input_files]
@@ -53,7 +56,7 @@ class Build:
         output = output + self.output_file + ':' + ' '.join(self.dependencies)+' '+' '.join(objects) + '\n'
         # target rule
         if (self.target_type == 0):
-            output = output + '\t'+ CXX + ' ' + ' '.join(objects) + ' ' + ' '.join(self.dependencies) + ' ' + self.linkflags +  ' -o ' + self.output_file + '\n'
+            output = output + '\t'+ CXX + ' ' + ' '.join(objects) + ' ' + ' '.join(self.dependencies) + ' ' + ' '.join([TLD+i for i in self.external_dependencies]) + ' ' + self.linkflags +  ' -o ' + self.output_file + '\n'
         else:
             output = output + '\t'+ AR + ' rcs ' + self.linkflags + ' ' + self.output_file + ' ' + ' '.join(objects) + '\n'
 
@@ -89,58 +92,53 @@ print "SRC_SOURCES", SRC_SOURCES
 
 gtest = Build()
 gtest.set_cxxflags(CXXFLAGS)
-gtest.set_src_dir(TLD+'gtest/')
+gtest.set_src_dir('gtest/')
 gtest.add_src_files(['gmock-gtest-all.cc'])
 gtest.add_include_paths(['gtest'])
 gtest.target_archive('gtest.a')
 
 src = Build()
 src.set_cxxflags(CXXFLAGS)
-src.add_include_paths(['src/', 'FlyInterface/', 'Logless/', 'Common/'])
-src.set_src_dir(TLD+'src/')
+src.add_include_paths(['src/', 'FlyInterface/', 'Logless/src', 'Common/'])
+src.set_src_dir('src/')
 src.add_src_files(SRC_SOURCES)
 src.target_archive('src.a')
 
-logless = Build()
-logless.set_cxxflags(CXXFLAGS)
-logless.add_include_paths(['Logless/'])
-logless.set_src_dir(TLD+'Logless/')
-logless.add_src_files(["Logger.cpp"])
-logless.target_archive('logless.a')
-
 test = Build()
 test.set_cxxflags(CXXFLAGS)
-test.add_include_paths(['gtest/', 'src/', 'FlyInterface/', 'test/', 'Logless/', 'Common/'])
-test.set_src_dir(TLD+'test/')
+test.add_include_paths(['gtest/', 'src/', 'FlyInterface/', 'test/', 'Logless/src', 'Common/'])
+test.set_src_dir('test/')
 test.add_src_files(TEST_SOURCES)
-test.add_dependencies(['gtest.a', 'src.a', 'logless.a'])
+test.add_dependencies(['gtest.a', 'src.a'])
+test.add_external_dependencies(['Logless/build/logless.a'])
 test.set_linkflags("-lpthread")
 test.target_executable('test')
 
 flydb = Build()
 flydb.set_cxxflags(CXXFLAGS)
-flydb.add_include_paths(['src/', 'FlyInterface/', 'Logless/', 'Common/'])
-flydb.set_src_dir(TLD+'src/')
+flydb.add_include_paths(['src/', 'FlyInterface/', 'Logless/src', 'Common/'])
+flydb.set_src_dir('src/')
 flydb.add_src_files(["main.cpp"])
-flydb.add_dependencies(['src.a', 'logless.a'])
+flydb.add_dependencies(['src.a'])
+flydb.add_external_dependencies(['Logless/build/logless.a'])
 flydb.set_linkflags("-lpthread")
 flydb.target_executable('flydb')
 
 puller = Build()
 puller.set_cxxflags(CXXFLAGS)
-puller.add_include_paths(['SCT/', 'FlyInterface/', 'Logless/', 'Common/', 'FlyDbClient/'])
-puller.set_src_dir(TLD+'SCT/')
+puller.add_include_paths(['SCT/', 'FlyInterface/', 'Logless/src', 'Common/', 'FlyDbClient/'])
+puller.set_src_dir('SCT/')
 puller.add_src_files(["puller.cpp"])
-puller.add_dependencies(['logless.a'])
+puller.add_external_dependencies(['Logless/build/logless.a'])
 puller.set_linkflags("-lpthread")
 puller.target_executable('puller')
 
 pusher = Build()
 pusher.set_cxxflags(CXXFLAGS)
-pusher.add_include_paths(['SCT/', 'FlyInterface/', 'Logless/', 'Common/', 'FlyDbClient/'])
-pusher.set_src_dir(TLD+'SCT/')
+pusher.add_include_paths(['SCT/', 'FlyInterface/', 'Logless/src', 'Common/', 'FlyDbClient/'])
+pusher.set_src_dir('SCT/')
 pusher.add_src_files(["pusher.cpp"])
-pusher.add_dependencies(['logless.a'])
+pusher.add_external_dependencies(['Logless/build/logless.a'])
 pusher.set_linkflags("-lpthread")
 pusher.target_executable('pusher')
 
@@ -148,7 +146,6 @@ with open('Makefile','w+') as mf:
     mf.write(gtest.generate_make())
     mf.write(test.generate_make())
     mf.write(src.generate_make())
-    mf.write(logless.generate_make())
     mf.write(flydb.generate_make())
     mf.write(puller.generate_make())
     mf.write(pusher.generate_make())
