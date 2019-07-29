@@ -1,0 +1,3 @@
+[submodule "Logless"]
+	path = Logless
+	url = git@github.com:therooftopprinz/Logless.git
