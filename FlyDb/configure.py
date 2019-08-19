@@ -6,7 +6,7 @@ import subprocess
 CXX      = 'g++'
 AR       = 'ar'
 MAKE     = 'make'
-CXXFLAGS = '-std=c++17 -O0 -ggdb3 -Wall -Werror -I../gtest'
+CXXFLAGS = '-std=c++17 -O0 -ggdb3 -Wall -Werror'
 
 TLD = os.path.dirname(sys.argv[0])+'/'
 PWD = os.getcwd()+'/'
