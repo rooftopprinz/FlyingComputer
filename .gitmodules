@@ -4,3 +4,6 @@
 [submodule "BFC"]
 	path = BFC
 	url = https://github.com/therooftopprinz/BFC.git
+[submodule "propertytree"]
+	path = propertytree
+	url = https://github.com/therooftopprinz/propertytree.git

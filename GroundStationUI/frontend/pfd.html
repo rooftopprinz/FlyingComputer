@@ -1,0 +1,892 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.structure.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.theme.min.css"/>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  </head>
+  <body>
+
+    <svg id="primaryFlightDisplay" version="1.1"
+      baseProfile="full"
+      width="800" height="600"
+      xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="black"/>
+
+      <defs>
+        <clipPath id="attitudeIndicatorWindowClip">
+          <rect x="0" y="0" rx="50" width="350" height="350"/>
+        </clipPath>
+        <clipPath id="tapeWindowClip">
+          <rect x="0" y="0" width="200"   height="500"/>
+        </clipPath>
+        <clipPath id="attitudeIndicatorAngleClip">
+          <circle cx="175" cy="175" r="130"/>
+        </clipPath>
+      </defs>
+
+      <g id="attitudeIndicator" clip-path="url(#attitudeIndicatorWindowClip)" transform="translate(125 125)">
+        <!-- horizon -->
+        <g transform="translate(175 175)">
+          <g class="roll" transform="rotate(0)">
+            <g class="pitch" transform="translate(0 0)">
+              <g transform="translate(-175 -175)">
+                <rect x="-100" y="-450" width="500" height="800" fill="#0788c1"></rect>
+                <rect x="-100" y="175"  width="500" height="700" fill="#934515"></rect>
+              </g>
+            </g>
+          </g>
+        </g>
+        <!-- angle text -->
+        <g clip-path="url(#attitudeIndicatorAngleClip)">
+          <g transform="translate(175 175)">
+            <g class="roll" transform="rotate(0)">
+              <g class="pitch" transform="translate(0 0)">
+                <g transform="translate(0 -400)">
+                  <g stroke="#d1f3ea">
+                    <path d="M -75 400 h 150 M -75 356 h 150 M -75 311 h 150 M -75 267 h 150 M -75 222 h 150 M -75 178 h 150 M -75 133 h 150 M -75 089 h 150 M -75 044 h 150 M -75 000 h 150 M -75 444 h 150 M -75 489 h 150 M -75 533 h 150 M -75 578 h 150 M -75 622 h 150 M -75 667 h 150 M -75 711 h 150 M -75 756 h 150 M -75 800 h 150"></path>        
+                    <path d="M -50 378 h 100 M -50 333 h 100 M -50 289 h 100 M -50 244 h 100 M -50 200 h 100 M -50 156 h 100 M -50 111 h 100 M -50 067 h 100 M -50 022 h 100 M -50 422 h 100 M -50 467 h 100 M -50 511 h 100 M -50 557 h 100 M -50 600 h 100 M -50 644 h 100 M -50 689 h 100 M -50 733 h 100 M -50 778 h 100"></path>
+                  </g>
+        
+                  <g font-family="courier new" fill="#d1f3ea">
+                    <text x="-100" y="405">0</text>
+                    <text x="-100" y="361">10</text>
+                    <text x="-100" y="316">20</text>
+                    <text x="-100" y="272">30</text>
+                    <text x="-100" y="227">40</text>
+                    <text x="-100" y="183">50</text>
+                    <text x="-100" y="138">60</text>
+                    <text x="-100" y="094">70</text>
+                    <text x="-100" y="049">80</text>
+                    <text x="-100" y="005">90</text>
+                    <text x="-100" y="449">10</text>
+                    <text x="-100" y="494">20</text>
+                    <text x="-100" y="538">30</text>
+                    <text x="-100" y="583">40</text>
+                    <text x="-100" y="627">50</text>
+                    <text x="-100" y="672">60</text>
+                    <text x="-100" y="716">70</text>
+                    <text x="-100" y="761">80</text>
+                    <text x="-100" y="805">90</text>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <!-- aircraft -->
+        <g stroke="#d1f3ea" fill="black" stroke-width="2" transform="translate(175 175)">
+          <path d="M -125 0 h 75 v 25 h -5 v -20 h -70 z M 125 0 h -75 v 25 h 5 v -20 h 70 z M -5 -5 h 5 v 5 h -5 z"></path>
+        </g>
+
+        <!-- bank indicator -->
+        <g stroke="#d1f3ea" fill="none">
+          <circle cx="175" cy="300" r="280"></circle>
+          <g transform="translate(175 305)">
+            <g class="roll">
+              <g transform="translate(0 -280)">
+                <path d="M 0 10 h -10 l 10 -10 l 10 10 z">
+              </g>
+            </g>
+          </g>
+
+          <g font-family="courier new" fill="#d1f3ea">
+            <text class="rollValue" x="175" y="15">0</text>
+          </g>
+        </g>
+      </g>
+      <!-- speed tape -->
+      <g id="speedTape" clip-path="url(#tapeWindowClip)" transform="translate(10 50)">
+        <g transform="translate(5 250)">
+          <g class="tape" stroke="#d1f3ea">
+
+            <!-- speed tape background -->
+            <rect y="-2800" height="3500" width="75" fill="grey" stroke="none"></rect>
+  
+            <!-- speed tape line -->
+            <g transform="translate(50 0)">
+              <path d="M 0  0   h 25"></path>
+              <path d="M 0 -50  h 25"></path>
+              <path d="M 0 -100 h 25"></path>
+              <path d="M 0 -150 h 25"></path>
+              <path d="M 0 -200 h 25"></path>
+              <path d="M 0 -250 h 25"></path>
+              <path d="M 0 -300 h 25"></path>
+              <path d="M 0 -350 h 25"></path>
+              <path d="M 0 -400 h 25"></path>
+              <path d="M 0 -450 h 25"></path>
+              <path d="M 0 -500 h 25"></path>
+              <path d="M 0 -550 h 25"></path>
+              <path d="M 0 -600 h 25"></path>
+              <path d="M 0 -650 h 25"></path>
+              <path d="M 0 -700 h 25"></path>
+              <path d="M 0 -750 h 25"></path>
+              <path d="M 0 -800 h 25"></path>
+              <path d="M 0 -850 h 25"></path>
+              <path d="M 0 -900 h 25"></path>
+              <path d="M 0 -950 h 25"></path>
+              <path d="M 0 -1000 h 25"></path>
+              <path d="M 0 -1050 h 25"></path>
+              <path d="M 0 -1100 h 25"></path>
+              <path d="M 0 -1150 h 25"></path>
+              <path d="M 0 -1200 h 25"></path>
+              <path d="M 0 -1250 h 25"></path>
+              <path d="M 0 -1300 h 25"></path>
+            </g>
+  
+            <!-- speed tape number -->
+            <g font-family="courier new" fill="#d1f3ea" stroke="none" transform="translate(10 5)">
+              <text y="0"   > 0</text>
+              <text y="-50" >10</text>
+              <text y="-100">20</text>
+              <text y="-150">30</text>
+              <text y="-200">40</text>
+              <text y="-250">50</text>
+              <text y="-300">60</text>
+              <text y="-350">70</text>
+              <text y="-400">80</text>
+              <text y="-450">90</text>
+              <text y="-500">100</text>
+              <text y="-550">120</text>
+              <text y="-600">130</text>
+              <text y="-650">140</text>
+              <text y="-700">150</text>
+              <text y="-750">160</text>
+              <text y="-800">170</text>
+              <text y="-850">180</text>
+              <text y="-900">190</text>
+              <text y="-950">200</text>
+              <text y="-1000">210</text>
+              <text y="-1050">220</text>
+              <text y="-1100">230</text>
+              <text y="-1150">240</text>
+              <text y="-1200">250</text>
+              <text y="-1250">260</text>
+            </g>
+          </g>
+        </g>
+        <!-- speed tape pointer -->
+        <g transform="translate(2 250)">
+          <path stroke="white" stroke-width="2" d="M 0 0 v -20 h 50 l 20 20 l -20 20 h -50 z"></path>
+          <text x="5" y="5" class="speedValue" font-family="courier new" fill="#d1f3ea" stroke="none">000</text>
+        </g>
+
+      </g>
+
+      <!-- alt tape -->
+      <g id="altTape" clip-path="url(#tapeWindowClip)" transform="translate(475 50)">
+        <path stroke="white" fill="none" d="M 0 0 v 10 M 0 0 h 10 z"></path>
+        <g transform="translate(35 250)">
+          <g class="tape" stroke="#d1f3ea">
+            <rect x="0" y="-60250" width="75" height="60500" fill="grey" stroke="none"></rect>
+            <g>
+              <!-- alt tape line -->
+              <path d="M 0 0 h 10 M 0 -100 h 10 M 0 -200 h 10 M 0 -300 h 10 M 0 -400 h 10 M 0 -500 h 10 M 0 -600 h 10 M 0 -700 h 10 M 0 -800 h 10 M 0 -900 h 10 M 0 -1000 h 10 M 0 -1100 h 10 M 0 -1200 h 10 M 0 -1300 h 10 M 0 -1400 h 10 M 0 -1500 h 10 M 0 -1600 h 10 M 0 -1700 h 10 M 0 -1800 h 10 M 0 -1900 h 10 M 0 -2000 h 10 M 0 -2100 h 10 M 0 -2200 h 10 M 0 -2300 h 10 M 0 -2400 h 10 M 0 -2500 h 10 M 0 -2600 h 10 M 0 -2700 h 10 M 0 -2800 h 10 M 0 -2900 h 10 M 0 -3000 h 10 M 0 -3100 h 10 M 0 -3200 h 10 M 0 -3300 h 10 M 0 -3400 h 10 M 0 -3500 h 10 M 0 -3600 h 10 M 0 -3700 h 10 M 0 -3800 h 10 M 0 -3900 h 10 M 0 -4000 h 10 M 0 -4100 h 10 M 0 -4200 h 10 M 0 -4300 h 10 M 0 -4400 h 10 M 0 -4500 h 10 M 0 -4600 h 10 M 0 -4700 h 10 M 0 -4800 h 10 M 0 -4900 h 10 M 0 -5000 h 10 M 0 -5100 h 10 M 0 -5200 h 10 M 0 -5300 h 10 M 0 -5400 h 10 M 0 -5500 h 10 M 0 -5600 h 10 M 0 -5700 h 10 M 0 -5800 h 10 M 0 -5900 h 10 M 0 -6000 h 10 M 0 -6100 h 10 M 0 -6200 h 10 M 0 -6300 h 10 M 0 -6400 h 10 M 0 -6500 h 10 M 0 -6600 h 10 M 0 -6700 h 10 M 0 -6800 h 10 M 0 -6900 h 10 M 0 -7000 h 10 M 0 -7100 h 10 M 0 -7200 h 10 M 0 -7300 h 10 M 0 -7400 h 10 M 0 -7500 h 10 M 0 -7600 h 10 M 0 -7700 h 10 M 0 -7800 h 10 M 0 -7900 h 10 M 0 -8000 h 10 M 0 -8100 h 10 M 0 -8200 h 10 M 0 -8300 h 10 M 0 -8400 h 10 M 0 -8500 h 10 M 0 -8600 h 10 M 0 -8700 h 10 M 0 -8800 h 10 M 0 -8900 h 10 M 0 -9000 h 10 M 0 -9100 h 10 M 0 -9200 h 10 M 0 -9300 h 10 M 0 -9400 h 10 M 0 -9500 h 10 M 0 -9600 h 10 M 0 -9700 h 10 M 0 -9800 h 10 M 0 -9900 h 10 M 0 -10000 h 10 M 0 -10100 h 10 M 0 -10200 h 10 M 0 -10300 h 10 M 0 -10400 h 10 M 0 -10500 h 10 M 0 -10600 h 10 M 0 -10700 h 10 M 0 -10800 h 10 M 0 -10900 h 10 M 0 -11000 h 10 M 0 -11100 h 10 M 0 -11200 h 10 M 0 -11300 h 10 M 0 -11400 h 10 M 0 -11500 h 10 M 0 -11600 h 10 M 0 -11700 h 10 M 0 -11800 h 10 M 0 -11900 h 10 M 0 -12000 h 10 M 0 -12100 h 10 M 0 -12200 h 10 M 0 -12300 h 10 M 0 -12400 h 10 M 0 -12500 h 10 M 0 -12600 h 10 M 0 -12700 h 10 M 0 -12800 h 10 M 0 -12900 h 10 M 0 -13000 h 10 M 0 -13100 h 10 M 0 -13200 h 10 M 0 -13300 h 10 M 0 -13400 h 10 M 0 -13500 h 10 M 0 -13600 h 10 M 0 -13700 h 10 M 0 -13800 h 10 M 0 -13900 h 10 M 0 -14000 h 10 M 0 -14100 h 10 M 0 -14200 h 10 M 0 -14300 h 10 M 0 -14400 h 10 M 0 -14500 h 10 M 0 -14600 h 10 M 0 -14700 h 10 M 0 -14800 h 10 M 0 -14900 h 10 M 0 -15000 h 10 M 0 -15100 h 10 M 0 -15200 h 10 M 0 -15300 h 10 M 0 -15400 h 10 M 0 -15500 h 10 M 0 -15600 h 10 M 0 -15700 h 10 M 0 -15800 h 10 M 0 -15900 h 10 M 0 -16000 h 10 M 0 -16100 h 10 M 0 -16200 h 10 M 0 -16300 h 10 M 0 -16400 h 10 M 0 -16500 h 10 M 0 -16600 h 10 M 0 -16700 h 10 M 0 -16800 h 10 M 0 -16900 h 10 M 0 -17000 h 10 M 0 -17100 h 10 M 0 -17200 h 10 M 0 -17300 h 10 M 0 -17400 h 10 M 0 -17500 h 10 M 0 -17600 h 10 M 0 -17700 h 10 M 0 -17800 h 10 M 0 -17900 h 10 M 0 -18000 h 10 M 0 -18100 h 10 M 0 -18200 h 10 M 0 -18300 h 10 M 0 -18400 h 10 M 0 -18500 h 10 M 0 -18600 h 10 M 0 -18700 h 10 M 0 -18800 h 10 M 0 -18900 h 10 M 0 -19000 h 10 M 0 -19100 h 10 M 0 -19200 h 10 M 0 -19300 h 10 M 0 -19400 h 10 M 0 -19500 h 10 M 0 -19600 h 10 M 0 -19700 h 10 M 0 -19800 h 10 M 0 -19900 h 10 M 0 -20000 h 10 M 0 -20100 h 10 M 0 -20200 h 10 M 0 -20300 h 10 M 0 -20400 h 10 M 0 -20500 h 10 M 0 -20600 h 10 M 0 -20700 h 10 M 0 -20800 h 10 M 0 -20900 h 10 M 0 -21000 h 10 M 0 -21100 h 10 M 0 -21200 h 10 M 0 -21300 h 10 M 0 -21400 h 10 M 0 -21500 h 10 M 0 -21600 h 10 M 0 -21700 h 10 M 0 -21800 h 10 M 0 -21900 h 10 M 0 -22000 h 10 M 0 -22100 h 10 M 0 -22200 h 10 M 0 -22300 h 10 M 0 -22400 h 10 M 0 -22500 h 10 M 0 -22600 h 10 M 0 -22700 h 10 M 0 -22800 h 10 M 0 -22900 h 10 M 0 -23000 h 10 M 0 -23100 h 10 M 0 -23200 h 10 M 0 -23300 h 10 M 0 -23400 h 10 M 0 -23500 h 10 M 0 -23600 h 10 M 0 -23700 h 10 M 0 -23800 h 10 M 0 -23900 h 10 M 0 -24000 h 10 M 0 -24100 h 10 M 0 -24200 h 10 M 0 -24300 h 10 M 0 -24400 h 10 M 0 -24500 h 10 M 0 -24600 h 10 M 0 -24700 h 10 M 0 -24800 h 10 M 0 -24900 h 10 M 0 -25000 h 10 M 0 -25100 h 10 M 0 -25200 h 10 M 0 -25300 h 10 M 0 -25400 h 10 M 0 -25500 h 10 M 0 -25600 h 10 M 0 -25700 h 10 M 0 -25800 h 10 M 0 -25900 h 10 M 0 -26000 h 10 M 0 -26100 h 10 M 0 -26200 h 10 M 0 -26300 h 10 M 0 -26400 h 10 M 0 -26500 h 10 M 0 -26600 h 10 M 0 -26700 h 10 M 0 -26800 h 10 M 0 -26900 h 10 M 0 -27000 h 10 M 0 -27100 h 10 M 0 -27200 h 10 M 0 -27300 h 10 M 0 -27400 h 10 M 0 -27500 h 10 M 0 -27600 h 10 M 0 -27700 h 10 M 0 -27800 h 10 M 0 -27900 h 10 M 0 -28000 h 10 M 0 -28100 h 10 M 0 -28200 h 10 M 0 -28300 h 10 M 0 -28400 h 10 M 0 -28500 h 10 M 0 -28600 h 10 M 0 -28700 h 10 M 0 -28800 h 10 M 0 -28900 h 10 M 0 -29000 h 10 M 0 -29100 h 10 M 0 -29200 h 10 M 0 -29300 h 10 M 0 -29400 h 10 M 0 -29500 h 10 M 0 -29600 h 10 M 0 -29700 h 10 M 0 -29800 h 10 M 0 -29900 h 10 M 0 -30000 h 10 M 0 -30100 h 10 M 0 -30200 h 10 M 0 -30300 h 10 M 0 -30400 h 10 M 0 -30500 h 10 M 0 -30600 h 10 M 0 -30700 h 10 M 0 -30800 h 10 M 0 -30900 h 10 M 0 -31000 h 10 M 0 -31100 h 10 M 0 -31200 h 10 M 0 -31300 h 10 M 0 -31400 h 10 M 0 -31500 h 10 M 0 -31600 h 10 M 0 -31700 h 10 M 0 -31800 h 10 M 0 -31900 h 10 M 0 -32000 h 10 M 0 -32100 h 10 M 0 -32200 h 10 M 0 -32300 h 10 M 0 -32400 h 10 M 0 -32500 h 10 M 0 -32600 h 10 M 0 -32700 h 10 M 0 -32800 h 10 M 0 -32900 h 10 M 0 -33000 h 10 M 0 -33100 h 10 M 0 -33200 h 10 M 0 -33300 h 10 M 0 -33400 h 10 M 0 -33500 h 10 M 0 -33600 h 10 M 0 -33700 h 10 M 0 -33800 h 10 M 0 -33900 h 10 M 0 -34000 h 10 M 0 -34100 h 10 M 0 -34200 h 10 M 0 -34300 h 10 M 0 -34400 h 10 M 0 -34500 h 10 M 0 -34600 h 10 M 0 -34700 h 10 M 0 -34800 h 10 M 0 -34900 h 10 M 0 -35000 h 10 M 0 -35100 h 10 M 0 -35200 h 10 M 0 -35300 h 10 M 0 -35400 h 10 M 0 -35500 h 10 M 0 -35600 h 10 M 0 -35700 h 10 M 0 -35800 h 10 M 0 -35900 h 10 M 0 -36000 h 10 M 0 -36100 h 10 M 0 -36200 h 10 M 0 -36300 h 10 M 0 -36400 h 10 M 0 -36500 h 10 M 0 -36600 h 10 M 0 -36700 h 10 M 0 -36800 h 10 M 0 -36900 h 10 M 0 -37000 h 10 M 0 -37100 h 10 M 0 -37200 h 10 M 0 -37300 h 10 M 0 -37400 h 10 M 0 -37500 h 10 M 0 -37600 h 10 M 0 -37700 h 10 M 0 -37800 h 10 M 0 -37900 h 10 M 0 -38000 h 10 M 0 -38100 h 10 M 0 -38200 h 10 M 0 -38300 h 10 M 0 -38400 h 10 M 0 -38500 h 10 M 0 -38600 h 10 M 0 -38700 h 10 M 0 -38800 h 10 M 0 -38900 h 10 M 0 -39000 h 10 M 0 -39100 h 10 M 0 -39200 h 10 M 0 -39300 h 10 M 0 -39400 h 10 M 0 -39500 h 10 M 0 -39600 h 10 M 0 -39700 h 10 M 0 -39800 h 10 M 0 -39900 h 10 M 0 -40000 h 10 M 0 -40100 h 10 M 0 -40200 h 10 M 0 -40300 h 10 M 0 -40400 h 10 M 0 -40500 h 10 M 0 -40600 h 10 M 0 -40700 h 10 M 0 -40800 h 10 M 0 -40900 h 10 M 0 -41000 h 10 M 0 -41100 h 10 M 0 -41200 h 10 M 0 -41300 h 10 M 0 -41400 h 10 M 0 -41500 h 10 M 0 -41600 h 10 M 0 -41700 h 10 M 0 -41800 h 10 M 0 -41900 h 10 M 0 -42000 h 10 M 0 -42100 h 10 M 0 -42200 h 10 M 0 -42300 h 10 M 0 -42400 h 10 M 0 -42500 h 10 M 0 -42600 h 10 M 0 -42700 h 10 M 0 -42800 h 10 M 0 -42900 h 10 M 0 -43000 h 10 M 0 -43100 h 10 M 0 -43200 h 10 M 0 -43300 h 10 M 0 -43400 h 10 M 0 -43500 h 10 M 0 -43600 h 10 M 0 -43700 h 10 M 0 -43800 h 10 M 0 -43900 h 10 M 0 -44000 h 10 M 0 -44100 h 10 M 0 -44200 h 10 M 0 -44300 h 10 M 0 -44400 h 10 M 0 -44500 h 10 M 0 -44600 h 10 M 0 -44700 h 10 M 0 -44800 h 10 M 0 -44900 h 10 M 0 -45000 h 10 M 0 -45100 h 10 M 0 -45200 h 10 M 0 -45300 h 10 M 0 -45400 h 10 M 0 -45500 h 10 M 0 -45600 h 10 M 0 -45700 h 10 M 0 -45800 h 10 M 0 -45900 h 10 M 0 -46000 h 10 M 0 -46100 h 10 M 0 -46200 h 10 M 0 -46300 h 10 M 0 -46400 h 10 M 0 -46500 h 10 M 0 -46600 h 10 M 0 -46700 h 10 M 0 -46800 h 10 M 0 -46900 h 10 M 0 -47000 h 10 M 0 -47100 h 10 M 0 -47200 h 10 M 0 -47300 h 10 M 0 -47400 h 10 M 0 -47500 h 10 M 0 -47600 h 10 M 0 -47700 h 10 M 0 -47800 h 10 M 0 -47900 h 10 M 0 -48000 h 10 M 0 -48100 h 10 M 0 -48200 h 10 M 0 -48300 h 10 M 0 -48400 h 10 M 0 -48500 h 10 M 0 -48600 h 10 M 0 -48700 h 10 M 0 -48800 h 10 M 0 -48900 h 10 M 0 -49000 h 10 M 0 -49100 h 10 M 0 -49200 h 10 M 0 -49300 h 10 M 0 -49400 h 10 M 0 -49500 h 10 M 0 -49600 h 10 M 0 -49700 h 10 M 0 -49800 h 10 M 0 -49900 h 10 M 0 -50000 h 10 M 0 -50100 h 10 M 0 -50200 h 10 M 0 -50300 h 10 M 0 -50400 h 10 M 0 -50500 h 10 M 0 -50600 h 10 M 0 -50700 h 10 M 0 -50800 h 10 M 0 -50900 h 10 M 0 -51000 h 10 M 0 -51100 h 10 M 0 -51200 h 10 M 0 -51300 h 10 M 0 -51400 h 10 M 0 -51500 h 10 M 0 -51600 h 10 M 0 -51700 h 10 M 0 -51800 h 10 M 0 -51900 h 10 M 0 -52000 h 10 M 0 -52100 h 10 M 0 -52200 h 10 M 0 -52300 h 10 M 0 -52400 h 10 M 0 -52500 h 10 M 0 -52600 h 10 M 0 -52700 h 10 M 0 -52800 h 10 M 0 -52900 h 10 M 0 -53000 h 10 M 0 -53100 h 10 M 0 -53200 h 10 M 0 -53300 h 10 M 0 -53400 h 10 M 0 -53500 h 10 M 0 -53600 h 10 M 0 -53700 h 10 M 0 -53800 h 10 M 0 -53900 h 10 M 0 -54000 h 10 M 0 -54100 h 10 M 0 -54200 h 10 M 0 -54300 h 10 M 0 -54400 h 10 M 0 -54500 h 10 M 0 -54600 h 10 M 0 -54700 h 10 M 0 -54800 h 10 M 0 -54900 h 10 M 0 -55000 h 10 M 0 -55100 h 10 M 0 -55200 h 10 M 0 -55300 h 10 M 0 -55400 h 10 M 0 -55500 h 10 M 0 -55600 h 10 M 0 -55700 h 10 M 0 -55800 h 10 M 0 -55900 h 10 M 0 -56000 h 10 M 0 -56100 h 10 M 0 -56200 h 10 M 0 -56300 h 10 M 0 -56400 h 10 M 0 -56500 h 10 M 0 -56600 h 10 M 0 -56700 h 10 M 0 -56800 h 10 M 0 -56900 h 10 M 0 -57000 h 10 M 0 -57100 h 10 M 0 -57200 h 10 M 0 -57300 h 10 M 0 -57400 h 10 M 0 -57500 h 10 M 0 -57600 h 10 M 0 -57700 h 10 M 0 -57800 h 10 M 0 -57900 h 10 M 0 -58000 h 10 M 0 -58100 h 10 M 0 -58200 h 10 M 0 -58300 h 10 M 0 -58400 h 10 M 0 -58500 h 10 M 0 -58600 h 10 M 0 -58700 h 10 M 0 -58800 h 10 M 0 -58900 h 10 M 0 -59000 h 10 M 0 -59100 h 10 M 0 -59200 h 10 M 0 -59300 h 10 M 0 -59400 h 10 M 0 -59500 h 10 M 0 -59600 h 10 M 0 -59700 h 10 M 0 -59800 h 10 M 0 -59900 h 10 M 0 -60000 h 10"></path>
+              <!-- alt tape text -->
+              <g font-family="courier new" fill="#d1f3ea" stroke="none" transform="translate(15 5)">
+                <text y="0">0</text>
+                <text y="-100">100</text>
+                <text y="-200">200</text>
+                <text y="-300">300</text>
+                <text y="-400">400</text>
+                <text y="-500">500</text>
+                <text y="-600">600</text>
+                <text y="-700">700</text>
+                <text y="-800">800</text>
+                <text y="-900">900</text>
+                <text y="-1000">1000</text>
+                <text y="-1100">1100</text>
+                <text y="-1200">1200</text>
+                <text y="-1300">1300</text>
+                <text y="-1400">1400</text>
+                <text y="-1500">1500</text>
+                <text y="-1600">1600</text>
+                <text y="-1700">1700</text>
+                <text y="-1800">1800</text>
+                <text y="-1900">1900</text>
+                <text y="-2000">2000</text>
+                <text y="-2100">2100</text>
+                <text y="-2200">2200</text>
+                <text y="-2300">2300</text>
+                <text y="-2400">2400</text>`
+                <text y="-2500">2500</text>
+                <text y="-2600">2600</text>
+                <text y="-2700">2700</text>
+                <text y="-2800">2800</text>
+                <text y="-2900">2900</text>
+                <text y="-3000">3000</text>
+                <text y="-3100">3100</text>
+                <text y="-3200">3200</text>
+                <text y="-3300">3300</text>
+                <text y="-3400">3400</text>
+                <text y="-3500">3500</text>
+                <text y="-3600">3600</text>
+                <text y="-3700">3700</text>
+                <text y="-3800">3800</text>
+                <text y="-3900">3900</text>
+                <text y="-4000">4000</text>
+                <text y="-4100">4100</text>
+                <text y="-4200">4200</text>
+                <text y="-4300">4300</text>
+                <text y="-4400">4400</text>
+                <text y="-4500">4500</text>
+                <text y="-4600">4600</text>
+                <text y="-4700">4700</text>
+                <text y="-4800">4800</text>
+                <text y="-4900">4900</text>
+                <text y="-5000">5000</text>
+                <text y="-5100">5100</text>
+                <text y="-5200">5200</text>
+                <text y="-5300">5300</text>
+                <text y="-5400">5400</text>
+                <text y="-5500">5500</text>
+                <text y="-5600">5600</text>
+                <text y="-5700">5700</text>
+                <text y="-5800">5800</text>
+                <text y="-5900">5900</text>
+                <text y="-6000">6000</text>
+                <text y="-6100">6100</text>
+                <text y="-6200">6200</text>
+                <text y="-6300">6300</text>
+                <text y="-6400">6400</text>
+                <text y="-6500">6500</text>
+                <text y="-6600">6600</text>
+                <text y="-6700">6700</text>
+                <text y="-6800">6800</text>
+                <text y="-6900">6900</text>
+                <text y="-7000">7000</text>
+                <text y="-7100">7100</text>
+                <text y="-7200">7200</text>
+                <text y="-7300">7300</text>
+                <text y="-7400">7400</text>
+                <text y="-7500">7500</text>
+                <text y="-7600">7600</text>
+                <text y="-7700">7700</text>
+                <text y="-7800">7800</text>
+                <text y="-7900">7900</text>
+                <text y="-8000">8000</text>
+                <text y="-8100">8100</text>
+                <text y="-8200">8200</text>
+                <text y="-8300">8300</text>
+                <text y="-8400">8400</text>
+                <text y="-8500">8500</text>
+                <text y="-8600">8600</text>
+                <text y="-8700">8700</text>
+                <text y="-8800">8800</text>
+                <text y="-8900">8900</text>
+                <text y="-9000">9000</text>
+                <text y="-9100">9100</text>
+                <text y="-9200">9200</text>
+                <text y="-9300">9300</text>
+                <text y="-9400">9400</text>
+                <text y="-9500">9500</text>
+                <text y="-9600">9600</text>
+                <text y="-9700">9700</text>
+                <text y="-9800">9800</text>
+                <text y="-9900">9900</text>
+                <text y="-10000">10000</text>
+                <text y="-10100">10100</text>
+                <text y="-10200">10200</text>
+                <text y="-10300">10300</text>
+                <text y="-10400">10400</text>
+                <text y="-10500">10500</text>
+                <text y="-10600">10600</text>
+                <text y="-10700">10700</text>
+                <text y="-10800">10800</text>
+                <text y="-10900">10900</text>
+                <text y="-11000">11000</text>
+                <text y="-11100">11100</text>
+                <text y="-11200">11200</text>
+                <text y="-11300">11300</text>
+                <text y="-11400">11400</text>
+                <text y="-11500">11500</text>
+                <text y="-11600">11600</text>
+                <text y="-11700">11700</text>
+                <text y="-11800">11800</text>
+                <text y="-11900">11900</text>
+                <text y="-12000">12000</text>
+                <text y="-12100">12100</text>
+                <text y="-12200">12200</text>
+                <text y="-12300">12300</text>
+                <text y="-12400">12400</text>
+                <text y="-12500">12500</text>
+                <text y="-12600">12600</text>
+                <text y="-12700">12700</text>
+                <text y="-12800">12800</text>
+                <text y="-12900">12900</text>
+                <text y="-13000">13000</text>
+                <text y="-13100">13100</text>
+                <text y="-13200">13200</text>
+                <text y="-13300">13300</text>
+                <text y="-13400">13400</text>
+                <text y="-13500">13500</text>
+                <text y="-13600">13600</text>
+                <text y="-13700">13700</text>
+                <text y="-13800">13800</text>
+                <text y="-13900">13900</text>
+                <text y="-14000">14000</text>
+                <text y="-14100">14100</text>
+                <text y="-14200">14200</text>
+                <text y="-14300">14300</text>
+                <text y="-14400">14400</text>
+                <text y="-14500">14500</text>
+                <text y="-14600">14600</text>
+                <text y="-14700">14700</text>
+                <text y="-14800">14800</text>
+                <text y="-14900">14900</text>
+                <text y="-15000">15000</text>
+                <text y="-15100">15100</text>
+                <text y="-15200">15200</text>
+                <text y="-15300">15300</text>
+                <text y="-15400">15400</text>
+                <text y="-15500">15500</text>
+                <text y="-15600">15600</text>
+                <text y="-15700">15700</text>
+                <text y="-15800">15800</text>
+                <text y="-15900">15900</text>
+                <text y="-16000">16000</text>
+                <text y="-16100">16100</text>
+                <text y="-16200">16200</text>
+                <text y="-16300">16300</text>
+                <text y="-16400">16400</text>
+                <text y="-16500">16500</text>
+                <text y="-16600">16600</text>
+                <text y="-16700">16700</text>
+                <text y="-16800">16800</text>
+                <text y="-16900">16900</text>
+                <text y="-17000">17000</text>
+                <text y="-17100">17100</text>
+                <text y="-17200">17200</text>
+                <text y="-17300">17300</text>
+                <text y="-17400">17400</text>
+                <text y="-17500">17500</text>
+                <text y="-17600">17600</text>
+                <text y="-17700">17700</text>
+                <text y="-17800">17800</text>
+                <text y="-17900">17900</text>
+                <text y="-18000">18000</text>
+                <text y="-18100">18100</text>
+                <text y="-18200">18200</text>
+                <text y="-18300">18300</text>
+                <text y="-18400">18400</text>
+                <text y="-18500">18500</text>
+                <text y="-18600">18600</text>
+                <text y="-18700">18700</text>
+                <text y="-18800">18800</text>
+                <text y="-18900">18900</text>
+                <text y="-19000">19000</text>
+                <text y="-19100">19100</text>
+                <text y="-19200">19200</text>
+                <text y="-19300">19300</text>
+                <text y="-19400">19400</text>
+                <text y="-19500">19500</text>
+                <text y="-19600">19600</text>
+                <text y="-19700">19700</text>
+                <text y="-19800">19800</text>
+                <text y="-19900">19900</text>
+                <text y="-20000">20000</text>
+                <text y="-20100">20100</text>
+                <text y="-20200">20200</text>
+                <text y="-20300">20300</text>
+                <text y="-20400">20400</text>
+                <text y="-20500">20500</text>
+                <text y="-20600">20600</text>
+                <text y="-20700">20700</text>
+                <text y="-20800">20800</text>
+                <text y="-20900">20900</text>
+                <text y="-21000">21000</text>
+                <text y="-21100">21100</text>
+                <text y="-21200">21200</text>
+                <text y="-21300">21300</text>
+                <text y="-21400">21400</text>
+                <text y="-21500">21500</text>
+                <text y="-21600">21600</text>
+                <text y="-21700">21700</text>
+                <text y="-21800">21800</text>
+                <text y="-21900">21900</text>
+                <text y="-22000">22000</text>
+                <text y="-22100">22100</text>
+                <text y="-22200">22200</text>
+                <text y="-22300">22300</text>
+                <text y="-22400">22400</text>
+                <text y="-22500">22500</text>
+                <text y="-22600">22600</text>
+                <text y="-22700">22700</text>
+                <text y="-22800">22800</text>
+                <text y="-22900">22900</text>
+                <text y="-23000">23000</text>
+                <text y="-23100">23100</text>
+                <text y="-23200">23200</text>
+                <text y="-23300">23300</text>
+                <text y="-23400">23400</text>
+                <text y="-23500">23500</text>
+                <text y="-23600">23600</text>
+                <text y="-23700">23700</text>
+                <text y="-23800">23800</text>
+                <text y="-23900">23900</text>
+                <text y="-24000">24000</text>
+                <text y="-24100">24100</text>
+                <text y="-24200">24200</text>
+                <text y="-24300">24300</text>
+                <text y="-24400">24400</text>
+                <text y="-24500">24500</text>
+                <text y="-24600">24600</text>
+                <text y="-24700">24700</text>
+                <text y="-24800">24800</text>
+                <text y="-24900">24900</text>
+                <text y="-25000">25000</text>
+                <text y="-25100">25100</text>
+                <text y="-25200">25200</text>
+                <text y="-25300">25300</text>
+                <text y="-25400">25400</text>
+                <text y="-25500">25500</text>
+                <text y="-25600">25600</text>
+                <text y="-25700">25700</text>
+                <text y="-25800">25800</text>
+                <text y="-25900">25900</text>
+                <text y="-26000">26000</text>
+                <text y="-26100">26100</text>
+                <text y="-26200">26200</text>
+                <text y="-26300">26300</text>
+                <text y="-26400">26400</text>
+                <text y="-26500">26500</text>
+                <text y="-26600">26600</text>
+                <text y="-26700">26700</text>
+                <text y="-26800">26800</text>
+                <text y="-26900">26900</text>
+                <text y="-27000">27000</text>
+                <text y="-27100">27100</text>
+                <text y="-27200">27200</text>
+                <text y="-27300">27300</text>
+                <text y="-27400">27400</text>
+                <text y="-27500">27500</text>
+                <text y="-27600">27600</text>
+                <text y="-27700">27700</text>
+                <text y="-27800">27800</text>
+                <text y="-27900">27900</text>
+                <text y="-28000">28000</text>
+                <text y="-28100">28100</text>
+                <text y="-28200">28200</text>
+                <text y="-28300">28300</text>
+                <text y="-28400">28400</text>
+                <text y="-28500">28500</text>
+                <text y="-28600">28600</text>
+                <text y="-28700">28700</text>
+                <text y="-28800">28800</text>
+                <text y="-28900">28900</text>
+                <text y="-29000">29000</text>
+                <text y="-29100">29100</text>
+                <text y="-29200">29200</text>
+                <text y="-29300">29300</text>
+                <text y="-29400">29400</text>
+                <text y="-29500">29500</text>
+                <text y="-29600">29600</text>
+                <text y="-29700">29700</text>
+                <text y="-29800">29800</text>
+                <text y="-29900">29900</text>
+                <text y="-30000">30000</text>
+                <text y="-30100">30100</text>
+                <text y="-30200">30200</text>
+                <text y="-30300">30300</text>
+                <text y="-30400">30400</text>
+                <text y="-30500">30500</text>
+                <text y="-30600">30600</text>
+                <text y="-30700">30700</text>
+                <text y="-30800">30800</text>
+                <text y="-30900">30900</text>
+                <text y="-31000">31000</text>
+                <text y="-31100">31100</text>
+                <text y="-31200">31200</text>
+                <text y="-31300">31300</text>
+                <text y="-31400">31400</text>
+                <text y="-31500">31500</text>
+                <text y="-31600">31600</text>
+                <text y="-31700">31700</text>
+                <text y="-31800">31800</text>
+                <text y="-31900">31900</text>
+                <text y="-32000">32000</text>
+                <text y="-32100">32100</text>
+                <text y="-32200">32200</text>
+                <text y="-32300">32300</text>
+                <text y="-32400">32400</text>
+                <text y="-32500">32500</text>
+                <text y="-32600">32600</text>
+                <text y="-32700">32700</text>
+                <text y="-32800">32800</text>
+                <text y="-32900">32900</text>
+                <text y="-33000">33000</text>
+                <text y="-33100">33100</text>
+                <text y="-33200">33200</text>
+                <text y="-33300">33300</text>
+                <text y="-33400">33400</text>
+                <text y="-33500">33500</text>
+                <text y="-33600">33600</text>
+                <text y="-33700">33700</text>
+                <text y="-33800">33800</text>
+                <text y="-33900">33900</text>
+                <text y="-34000">34000</text>
+                <text y="-34100">34100</text>
+                <text y="-34200">34200</text>
+                <text y="-34300">34300</text>
+                <text y="-34400">34400</text>
+                <text y="-34500">34500</text>
+                <text y="-34600">34600</text>
+                <text y="-34700">34700</text>
+                <text y="-34800">34800</text>
+                <text y="-34900">34900</text>
+                <text y="-35000">35000</text>
+                <text y="-35100">35100</text>
+                <text y="-35200">35200</text>
+                <text y="-35300">35300</text>
+                <text y="-35400">35400</text>
+                <text y="-35500">35500</text>
+                <text y="-35600">35600</text>
+                <text y="-35700">35700</text>
+                <text y="-35800">35800</text>
+                <text y="-35900">35900</text>
+                <text y="-36000">36000</text>
+                <text y="-36100">36100</text>
+                <text y="-36200">36200</text>
+                <text y="-36300">36300</text>
+                <text y="-36400">36400</text>
+                <text y="-36500">36500</text>
+                <text y="-36600">36600</text>
+                <text y="-36700">36700</text>
+                <text y="-36800">36800</text>
+                <text y="-36900">36900</text>
+                <text y="-37000">37000</text>
+                <text y="-37100">37100</text>
+                <text y="-37200">37200</text>
+                <text y="-37300">37300</text>
+                <text y="-37400">37400</text>
+                <text y="-37500">37500</text>
+                <text y="-37600">37600</text>
+                <text y="-37700">37700</text>
+                <text y="-37800">37800</text>
+                <text y="-37900">37900</text>
+                <text y="-38000">38000</text>
+                <text y="-38100">38100</text>
+                <text y="-38200">38200</text>
+                <text y="-38300">38300</text>
+                <text y="-38400">38400</text>
+                <text y="-38500">38500</text>
+                <text y="-38600">38600</text>
+                <text y="-38700">38700</text>
+                <text y="-38800">38800</text>
+                <text y="-38900">38900</text>
+                <text y="-39000">39000</text>
+                <text y="-39100">39100</text>
+                <text y="-39200">39200</text>
+                <text y="-39300">39300</text>
+                <text y="-39400">39400</text>
+                <text y="-39500">39500</text>
+                <text y="-39600">39600</text>
+                <text y="-39700">39700</text>
+                <text y="-39800">39800</text>
+                <text y="-39900">39900</text>
+                <text y="-40000">40000</text>
+              </g>
+            </g>
+          </g>
+        </g>
+        <!-- alt tape pointer -->
+        <g transform="translate(42 250)">
+          <path stroke="white" stroke-width="2" d="M 0 0 l 20 20 h 50 v -40 h -50 l -20 20 z"></path>
+          <text x="15" y="5" class="altValue" font-family="courier new" fill="#d1f3ea" stroke="none">000</text>
+        </g>
+
+        <!-- vertical speed text -->
+        <g font-family="courier new" font-size="10" fill="#d1f3ea" stroke="none" transform="translate(120 250)">
+          <text y="-197">100</text>
+          <text y="-170">50</text>
+          <text y="-127">30</text>
+          <text y="-49">10</text>
+          <text y="0">0</text>
+          <text y="49">-10</text>
+          <text y="127">-30</text>
+          <text y="170">-50</text>
+          <text y="197">-100</text>
+          <g class="vsValueBox">
+            <g transform="translate(0 -10)">
+              <rect width="60" height="20" stroke="white" fill="black"></rect>
+              <path stroke="white" fill="none" d="M -5 10 h 5 z"></path>
+              <text class="vsValueText" fill="white" font-size="16"  transform="translate(5 15)">0</text>
+            </g>
+          </g>
+        </g>
+      </g>
+
+      <!-- hdg tape -->
+      <g id="hdgTape" transform="translate(300 700)">
+        <g class="tape">
+          <circle r="200" fill="grey"></circle>
+          <!-- hdg line short -->
+          <g stroke="#d1f3ea" stroke-width="2" fill="none">
+            <path d="m 0 -200 v 400" transform="rotate(5)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(15)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(25)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(35)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(45)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(55)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(65)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(75)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(85)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(95)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(105)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(115)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(125)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(135)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(145)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(155)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(165)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(175)"></path>
+          </g>
+  
+  
+          <circle r="195" fill="grey"></circle>
+  
+          <!-- hdg line long -->
+          <g stroke="#d1f3ea" stroke-width="2" fill="none">
+            <path d="m 0 -200 v 400" transform="rotate(0)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(10)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(20)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(30)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(40)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(50)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(60)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(70)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(80)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(90)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(100)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(110)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(120)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(130)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(140)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(150)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(160)"></path>
+            <path d="m 0 -200 v 400" transform="rotate(170)"></path>
+          </g>
+  
+          <circle r="190" fill="grey"></circle>
+  
+          <!-- hdg text -->
+          <g font-family="courier new" font-size="12" fill="#d1f3ea" stroke="none">
+            <text transform="rotate(-1)   translate(0 -180)">0</text>
+            <text transform="rotate(9)  translate(0 -180)">1</text>
+            <text transform="rotate(19)  translate(0 -180)">2</text>
+            <text transform="rotate(29)  translate(0 -180)">3</text>
+            <text transform="rotate(39)  translate(0 -180)">4</text>
+            <text transform="rotate(49)  translate(0 -180)">5</text>
+            <text transform="rotate(59)  translate(0 -180)">6</text>
+            <text transform="rotate(69)  translate(0 -180)">7</text>
+            <text transform="rotate(79)  translate(0 -180)">8</text>
+            <text transform="rotate(89)  translate(0 -180)">9</text>
+            <text transform="rotate(98) translate(0 -180)">10</text>
+            <text transform="rotate(108) translate(0 -180)">11</text>
+            <text transform="rotate(118) translate(0 -180)">12</text>
+            <text transform="rotate(128) translate(0 -180)">13</text>
+            <text transform="rotate(138) translate(0 -180)">14</text>
+            <text transform="rotate(148) translate(0 -180)">15</text>
+            <text transform="rotate(158) translate(0 -180)">16</text>
+            <text transform="rotate(168) translate(0 -180)">17</text>
+            <text transform="rotate(178) translate(0 -180)">18</text>
+            <text transform="rotate(188) translate(0 -180)">19</text>
+            <text transform="rotate(198) translate(0 -180)">20</text>
+            <text transform="rotate(208) translate(0 -180)">21</text>
+            <text transform="rotate(218) translate(0 -180)">22</text>
+            <text transform="rotate(228) translate(0 -180)">23</text>
+            <text transform="rotate(238) translate(0 -180)">24</text>
+            <text transform="rotate(248) translate(0 -180)">25</text>
+            <text transform="rotate(258) translate(0 -180)">26</text>
+            <text transform="rotate(268) translate(0 -180)">27</text>
+            <text transform="rotate(278) translate(0 -180)">28</text>
+            <text transform="rotate(288) translate(0 -180)">29</text>
+            <text transform="rotate(298) translate(0 -180)">30</text>
+            <text transform="rotate(308) translate(0 -180)">31</text>
+            <text transform="rotate(318) translate(0 -180)">32</text>
+            <text transform="rotate(328) translate(0 -180)">33</text>
+            <text transform="rotate(338) translate(0 -180)">34</text>
+            <text transform="rotate(348) translate(0 -180)">35</text>
+          </g>
+        </g>
+        <g>
+          <path stroke="white" stroke-width="2" fill="none" d="M 0 0 v -200 l -10 -10 l 20 0 l -10 10 z"></path>
+        </g>
+      </g>
+
+    </svg>
+
+    <br/>
+
+    <label>Roll</label>
+    <div id="sliderRoll" style="width: 600px;"></div>
+    <label>Pitch</label>
+    <div id="sliderPitch" style="width: 600px;"></div>
+    <label>Speed</label>
+    <div id="sliderSpeed" style="width: 600px;"></div>
+    <label>Alt</label>
+    <div id="sliderAlt" style="width: 600px;"></div>
+    <label>Vertical Speed</label>
+    <div id="sliderVspeed" style="width: 600px;"></div>
+    <label>Heading</label>
+    <div id="sliderHdg" style="width: 600px;"></div>
+
+    <script>
+
+      attitudeIndicatorRoll = $("#attitudeIndicator .roll");
+      attitudeIndicatorPitch = $("#attitudeIndicator .pitch");
+      attitudeIndicatorRollValue = $("#attitudeIndicator .rollValue");
+      speedTape = $("#speedTape .tape");
+      speedTapeSpeedValue = $("#speedTape .speedValue");
+      altTape = $("#altTape .tape");
+      altTapeAltValue = $("#altTape .altValue");
+      altTapeVsValueBox = $("#altTape .vsValueBox");
+      altTapeVsValueText = $("#altTape .vsValueText");
+      hdgTape = $("#hdgTape .tape");
+
+      function setPitchRoll(pitch, roll)
+      {
+        var oroll = roll;
+        if (pitch>90)
+        {
+          pitch = 180 - pitch;
+          roll += 180;
+        }
+
+        if (pitch<-90)
+        {
+          pitch = -180 - pitch;
+          roll += 180;
+        }
+
+        pitch = pitch*(400/90);
+        attitudeIndicatorRoll.each(function(){
+            this.setAttribute("transform", "rotate("+roll+")");
+          });
+        attitudeIndicatorPitch.each(function(){
+            this.setAttribute("transform", "translate(0 "+pitch+")");
+          });
+        attitudeIndicatorRollValue.each(function(){
+            this.innerHTML = parseInt(oroll);
+          });
+      }
+
+      function setSpeed(speed)
+      {
+        oval = Math.round(speed);
+        speed = speed * 5;
+        speedTape[0].setAttribute("transform", "translate(0 "+speed+")");
+        speedTapeSpeedValue[0].innerHTML = oval;
+      }
+
+      function setAlt(alt)
+      {
+        oval = Math.round(alt);
+        altTape[0].setAttribute("transform", "translate(0 "+oval+")");
+        altTapeAltValue[0].innerHTML = oval;
+      }
+
+      function setVspeed(vspeed)
+      {
+        oval = Math.round(vspeed);
+        vspeed = 200*((2/(1+Math.exp(-0.05*vspeed)))-1);
+        altTapeVsValueBox[0].setAttribute("transform", "translate(0 "+vspeed+")");
+        altTapeVsValueText[0].innerHTML = oval;
+      }
+
+      function setHdg(heading)
+      {
+        heading = -heading;
+        hdgTape[0].setAttribute("transform", "rotate("+heading+")");
+      }
+
+      pitch = 0;
+      roll = 0;
+      speed = 0;
+      vspeed = 0;
+      heading = 0;
+
+      $(function(){
+        $( "#sliderRoll" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value = 360*((ui.value/1000)-0.5);
+            roll = value;
+            setPitchRoll(pitch, roll);
+          },
+          create: function(event, ui){
+            $(this).slider('value', 500);
+            setPitchRoll(0, 0);
+          }
+        });
+        $( "#sliderPitch" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value = 360*((ui.value/1000)-0.5);
+            pitch = value;
+            setPitchRoll(pitch, roll);
+          },
+          create: function(event, ui){
+            $(this).slider('value', 500);
+            setPitchRoll(0, 0);
+          }
+        });
+        $( "#sliderSpeed" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value = 260*((ui.value/1000));
+            speed = value;
+            setSpeed(speed);
+          },
+          create: function(event, ui){
+            setSpeed(0);
+          }
+        });
+        $( "#sliderAlt" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value = 100*((ui.value/1000));
+            alt = value;
+            setAlt(alt);
+          },
+          create: function(event, ui){
+            setAlt(0);
+          }
+        });
+        $( "#sliderVspeed" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value =600*((ui.value/1000))-300;
+            vspeed = value;
+            setVspeed(vspeed);
+          },
+          create: function(event, ui){
+            $(this).slider('value', 500);
+            setVspeed(0);
+          }
+        });
+        $( "#sliderHdg" ).slider({
+          max:1000,
+          slide: function(event, ui)
+          {
+            var value = 360*((ui.value/1000))-180;
+            vspeed = value;
+            setHdg(vspeed);
+          },
+          create: function(event, ui){
+            $(this).slider('value', 500);
+            setHdg(0);
+          }
+        });
+      });
+    </script>
+
+  </body>
+</html>
