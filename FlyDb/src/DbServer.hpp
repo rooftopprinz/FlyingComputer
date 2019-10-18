@@ -2,7 +2,7 @@
 #define __DBSERVER_HPP__
 
 #include <map>
-#include <Udp.hpp>
+#include <bfc/Udp.hpp>
 #include <Logger.hpp>
 #include <protocol.hpp>
 #include <FlyDbInterface.hpp>
@@ -10,11 +10,11 @@
 class DbServer
 {
 public:
-    DbServer(net::ISocket& pSocket)
+    DbServer(bfc::ISocket& pSocket)
         : mSocket(pSocket)
     {}
 
-    void onReceive(common::Buffer&& pMessageBuffer, const net::IpPort& pAddr)
+    void onReceive(bfc::BufferView&& pMessageBuffer, const bfc::IpPort& pAddr)
     {
         auto trace = Trace("onReceive()");
         Logless("Received from _:_ data=_", pAddr.addr, pAddr.port, BufferLog(pMessageBuffer.size(), pMessageBuffer.data()));
@@ -53,12 +53,12 @@ private:
     };
 
     template <typename S, typename T>
-    void handle(S&&, T&&, const net::IpPort&)
+    void handle(S&&, T&&, const bfc::IpPort&)
     {
         auto trace = Trace("handle(): generic");
     }
 
-    void handle(FlyDbMessage& pRootMsg, ReadRequest& pMsg, const net::IpPort& pAddr)
+    void handle(FlyDbMessage& pRootMsg, ReadRequest& pMsg, const bfc::IpPort& pAddr)
     {
         auto trace = Trace("handle(): ReadRequest");
 
@@ -81,7 +81,7 @@ private:
         encodeAndSend(responseRoot, pAddr);
     }
 
-    void handle(FlyDbMessage& pRootMsg, WriteRequest& pMsg, const net::IpPort& pAddr)
+    void handle(FlyDbMessage& pRootMsg, WriteRequest& pMsg, const bfc::IpPort& pAddr)
     {
         auto trace = Trace("handle(): WriteRequest");
 
@@ -98,7 +98,7 @@ private:
         encodeAndSend(responseRoot, pAddr);
     }
 
-    void handle(FlyDbMessage&, WriteIndication& pMsg, const net::IpPort& pAddr)
+    void handle(FlyDbMessage&, WriteIndication& pMsg, const bfc::IpPort& pAddr)
     {
         auto trace = Trace("handle(): WriteIndication");
         for (auto paramIdData : pMsg.paramIdData)
@@ -109,7 +109,7 @@ private:
     }
 
     template <typename T>
-    void encodeAndSend(const T& pResponse, const net::IpPort& pAddr)
+    void encodeAndSend(const T& pResponse, const bfc::IpPort& pAddr)
     {
         auto trace = Trace("encodeAndSend()");
 
@@ -122,11 +122,11 @@ private:
         encode_per(pResponse, ctx);
         auto encodeSize = sizeof(sendBuffer) - ctx.size();
         Logless("Sending to _:_ data=_", pAddr.addr, pAddr.port, BufferLog(encodeSize, sendBuffer));
-        mSocket.sendto(common::Buffer(sendBuffer, encodeSize, false), pAddr);
+        mSocket.sendto(bfc::Buffer(sendBuffer, encodeSize, [](std::byte*){}), pAddr);
     }
 
     std::map<uint8_t, ParamData> mDatabase;
-    net::ISocket& mSocket;
+    bfc::ISocket& mSocket;
 };
 
 #endif // __DBSERVER_HPP__

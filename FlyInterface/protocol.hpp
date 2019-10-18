@@ -2,7 +2,7 @@
 #define __FLYINTERFACE_PROTOCOL_HPP__
 
 #include <cstdint>
-#include <Buffer.hpp>
+#include <bfc/Buffer.hpp>
 
 namespace flydb
 {

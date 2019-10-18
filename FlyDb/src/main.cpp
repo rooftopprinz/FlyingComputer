@@ -1,15 +1,14 @@
-#include <Udp.hpp>
+#include <bfc/Udp.hpp>
 #include <DbServer.hpp>
 
 int main()
 {
-    net::UdpSocket sock;
-    net::IpPort addr(0, 9000);
+    bfc::UdpSocket sock;
+    bfc::IpPort addr(0, 9000);
     sock.bind(addr);
     DbServer server(sock);
     std::byte rawbuffer[1024];
-    common::Buffer recvbuffer(rawbuffer, sizeof(rawbuffer), false);
-
+    bfc::BufferView recvbuffer(rawbuffer, sizeof(rawbuffer));
     Logger::getInstance().logful();
 
     while (true)
@@ -17,7 +16,7 @@ int main()
         auto rc = sock.recvfrom(recvbuffer, addr);
         if (rc>0)
         {
-            server.onReceive(common::Buffer(recvbuffer.data(), rc, false), addr);
+            server.onReceive(bfc::BufferView(rawbuffer, rc), addr);
         }
         else
         {

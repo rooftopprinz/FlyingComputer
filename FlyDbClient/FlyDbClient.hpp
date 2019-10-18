@@ -1,7 +1,7 @@
 #ifndef __FLYDBCLIENT__
 #define __FLYDBCLIENT__
 
-#include <Udp.hpp>
+#include <bfc/Udp.hpp>
 #include <Logger.hpp>
 #include <FlyDbInterface.hpp>
 
@@ -9,7 +9,7 @@ class FlyDbClient
 {
 public:
     enum Status {OK, TIMEOUT, BADRESP};
-    FlyDbClient(const net::IpPort& pServerAddr, uint64_t pUsTimeout=1000)
+    FlyDbClient(const bfc::IpPort& pServerAddr, uint64_t pUsTimeout=1000)
         : mServerAddr(pServerAddr)
     {
 
@@ -35,13 +35,13 @@ public:
             cum::per_codec_ctx ctx(mBuffer, sizeof(mBuffer));
             encode_per(msg, ctx);
             auto msgSize = sizeof(mBuffer) - ctx.size();
-            mSock.sendto(common::Buffer(mBuffer, msgSize, false), mServerAddr);
+            mSock.sendto(bfc::ConstBufferView(mBuffer, msgSize), mServerAddr);
         }
 
         while (true)
         {
-            net::IpPort rcvaddr;
-            auto rcvBuffer = common::Buffer(mBuffer, sizeof(mBuffer), false);
+            bfc::IpPort rcvaddr;
+            bfc::BufferView rcvBuffer(mBuffer, sizeof(mBuffer));
             auto rc = mSock.recvfrom(rcvBuffer, rcvaddr);
             if (rc>0)
             {
@@ -81,12 +81,12 @@ public:
             cum::per_codec_ctx ctx(mBuffer, sizeof(mBuffer));
             encode_per(msg, ctx);
             auto msgSize = sizeof(mBuffer) - ctx.size();
-            mSock.sendto(common::Buffer(mBuffer, msgSize, false), mServerAddr);
+            mSock.sendto(bfc::ConstBufferView(mBuffer, msgSize), mServerAddr);
         }
         while (true)
         {
-            net::IpPort rcvaddr;
-            auto rcvBuffer = common::Buffer(mBuffer, sizeof(mBuffer), false);
+            bfc::IpPort rcvaddr;
+            bfc::BufferView rcvBuffer(mBuffer, sizeof(mBuffer));
             auto rc = mSock.recvfrom(rcvBuffer, rcvaddr);
             if (rc>0)
             {
@@ -112,9 +112,9 @@ public:
 
 private:
     uint8_t mTrId = 0;
-    net::UdpSocket mSock = {};
+    bfc::UdpSocket mSock = {};
     std::byte  mBuffer[1024];
-    net::IpPort mServerAddr;
+    bfc::IpPort mServerAddr;
 };
 
 #endif // __FLYDBCLIENT__

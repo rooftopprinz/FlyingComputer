@@ -28,12 +28,12 @@ void print(const char* msg, const uint8_t* start, size_t size)
 
 }
 
-bool isMessageEqual(const common::Buffer& a, const common::Buffer& b)
+bool isMessageEqual(const bfc::ConstBufferView& a, const bfc::ConstBufferView& b)
 {
     return a.size() == b.size() && (std::memcmp(a.data(), b.data(), a.size())==0);
 }
 
-bool isIpPortEqual(const net::IpPort& a, const net::IpPort& b)
+bool isIpPortEqual(const bfc::IpPort& a, const bfc::IpPort& b)
 {
     return a.addr == b.addr && a.port == b.port;
 }
@@ -44,7 +44,7 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
     std::byte response0rawbuffer[1024];
     std::byte response1rawbuffer[1024];
 
-    net::IpPort from(4, 1555);
+    bfc::IpPort from(4, 1555);
 
     FlyDbMessage writeReponseMsg;
     writeReponseMsg.msg = WriteResponse{};
@@ -56,7 +56,7 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
     encode_per(writeReponseMsg, writeReponseCtx);
     auto writeReponseEncodeSize = sizeof(response0rawbuffer) - writeReponseCtx.size();
 
-    common::Buffer toReceive0(response0rawbuffer, writeReponseEncodeSize, false);
+    bfc::BufferView toReceive0(response0rawbuffer, writeReponseEncodeSize);
 
     FlyDbMessage readResponseMsg;
     readResponseMsg.msg = ReadResponse{};
@@ -71,16 +71,16 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
     encode_per(readResponseMsg, readResponseCtx);
     auto readResponseCtxEncodeSize = sizeof(response1rawbuffer) - readResponseCtx.size();
 
-    common::Buffer toReceive1((std::byte*)response1rawbuffer, readResponseCtxEncodeSize, false);
+    bfc::BufferView toReceive1((std::byte*)response1rawbuffer, readResponseCtxEncodeSize);
 
     EXPECT_CALL(mockISocket, sendto(
-        Truly([&toReceive0](const common::Buffer& a) {return isMessageEqual(a, toReceive0);}),
-        Truly([&from](const net::IpPort& a) {return isIpPortEqual(a, from);})
+        Truly([&toReceive0](const bfc::ConstBufferView& a) {return isMessageEqual(a, toReceive0);}),
+        Truly([&from](const bfc::IpPort& a) {return isIpPortEqual(a, from);})
         , 0)).RetiresOnSaturation();
 
     EXPECT_CALL(mockISocket, sendto(
-        Truly([&toReceive1](const common::Buffer& a) {return isMessageEqual(a, toReceive1);}),
-        Truly([&from](const net::IpPort& a) {return isIpPortEqual(a, from);})
+        Truly([&toReceive1](const bfc::ConstBufferView& a) {return isMessageEqual(a, toReceive1);}),
+        Truly([&from](const bfc::IpPort& a) {return isIpPortEqual(a, from);})
         , 0)).RetiresOnSaturation();
 
     {
@@ -97,7 +97,7 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
         encode_per(msg, ctx);
         auto msgSize = sizeof(requestrawbuffer) - ctx.size();
 
-        dbServer.onReceive(common::Buffer(requestrawbuffer, msgSize, false), from);
+        dbServer.onReceive(bfc::BufferView(requestrawbuffer, msgSize), from);
     }
 
     {
@@ -114,6 +114,6 @@ TEST_F(DbServerTest, shouldHandleSetRequestAndGetRequest)
         encode_per(msg, ctx);
         auto msgSize = sizeof(requestrawbuffer) - ctx.size();
 
-        dbServer.onReceive(common::Buffer(requestrawbuffer, msgSize, false), from);
+        dbServer.onReceive(bfc::BufferView(requestrawbuffer, msgSize), from);
     }
 }

@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
 {
     Logger::getInstance().logful();
 
-    FlyDbClient flyDb(net::toIpPort(127,0,0,1,9000),100000);
+    FlyDbClient flyDb(bfc::toIpPort(127,0,0,1,9000),100000);
     uint32_t i = 0;
     while(true)
     {
