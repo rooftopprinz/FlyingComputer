@@ -1,0 +1,151 @@
+<config>
+    <flyItfConfig>
+        <mapping index="0">/DATA_PLACEHOLDER</mapping>
+        <mapping index="1">/FLIGHT_CONTROL/YOKE_ROLL</mapping>
+        <mapping index="2">/FLIGHT_CONTROL/YOKE_PITCH</mapping>
+        <mapping index="3">/FLIGHT_CONTROL/RUDDER</mapping>
+        <mapping index="4">/FLIGHT_CONTROL/THROTTLE_LEFT</mapping>
+        <mapping index="5">/FLIGHT_CONTROL/THROTTLE_RIGHT</mapping>
+        <mapping index="6">/FLIGHT_CONTROL/SPEED_BRAKE</mapping>
+        <mapping index="7">/FLIGHT_CONTROL/PITCH_TRIM</mapping>
+        <mapping index="8">/FLIGHT_CONTROL/FLAP</mapping>
+        <mapping index="9">/FLIGHT_CONTROL/GEAR</mapping>
+        <mapping index="10">/FLIGHT_COMMAND/YOKE_ROLL</mapping>
+        <mapping index="11">/FLIGHT_COMMAND/YOKE_PITCH</mapping>
+        <mapping index="12">/FLIGHT_COMMAND/RUDDER</mapping>
+        <mapping index="13">/FLIGHT_COMMAND/THROTTLE_LEFT</mapping>
+        <mapping index="14">/FLIGHT_COMMAND/THROTTLE_RIGHT</mapping>
+        <mapping index="15">/FLIGHT_COMMAND/SPEED_BRAKE</mapping>
+        <mapping index="16">/FLIGHT_COMMAND/PITCH_TRIM</mapping>
+        <mapping index="17">/FLIGHT_COMMAND/FLAP</mapping>
+        <mapping index="18">/FLIGHT_COMMAND/GEAR</mapping>
+        <mapping index="19">/AUTOPILOT/ENABLED</mapping>
+        <mapping index="20">/AUTOPILOT/SPEED_MODE</mapping>
+        <mapping index="21">/AUTOPILOT/PITCH_MODE</mapping>
+        <mapping index="22">/AUTOPILOT/HEADING_MODE</mapping>
+        <mapping index="23">/AUTOPILOT/SPEED_SELECTOR</mapping>
+        <mapping index="24">/AUTOPILOT/ALT_SELECTOR</mapping>
+        <mapping index="25">/AUTOPILOT/VSPEED_SELECTOR</mapping>
+        <mapping index="26">/AUTOPILOT/HDG_SELECTOR</mapping>
+        <mapping index="27">/FLIGHT_DIRECTOR/ENABLED</mapping>
+        <mapping index="28">/FLIGHT_DIRECTOR/WAYPOINT_COUNT</mapping>
+        <mapping index="29">/FLIGHT_DIRECTOR/CURRENT_WAYPOINT</mapping>
+        <mapping index="30">/FLIGHT_DIRECTOR/PREVIOUS_WAYPOINT</mapping>
+        <mapping index="31">/FLIGHT_DIRECTOR/NEXT_WAYPOINT</mapping>
+        <mapping index="32">/FLIGHT_DIRECTOR/GOTO_NEXT</mapping>
+        <mapping index="33">/FLIGHT_DIRECTOR/GOTO_PREVIOUS</mapping>
+        <mapping index="34">/FLIGHT_DIRECTOR/GET_WAYPOINT</mapping>
+        <mapping index="35">/FLIGHT_DIRECTOR/INSERT_WAYPOINT</mapping>
+        <mapping index="36">/FLIGHT_DIRECTOR/ERASE_WAYPOINT</mapping>
+        <mapping index="37">/FLIGHT_DIRECTOR/CLEAR_WAYPOINT</mapping>
+        <mapping index="38">/INSTRUMENT/PITCH</mapping>
+        <mapping index="39">/INSTRUMENT/ROLL</mapping>
+        <mapping index="40">/INSTRUMENT/HEADING</mapping>
+        <mapping index="41">/INSTRUMENT/IAS</mapping>
+        <mapping index="42">/INSTRUMENT/AOA</mapping>
+        <mapping index="43">/INSTRUMENT/SLIP_SPEED</mapping>
+        <mapping index="44">/INSTRUMENT/GROUND_SPEED</mapping>
+        <mapping index="45">/INSTRUMENT/VERTICAL_SPEED</mapping>
+        <mapping index="46">/INSTRUMENT/LONGITUDE</mapping>
+        <mapping index="47">/INSTRUMENT/LATITUDE</mapping>
+        <mapping index="48">/INSTRUMENT/ALTITUDE</mapping>
+        <mapping index="49">/INSTRUMENT/BAROMETRIC_ALTITUDE</mapping>
+        <mapping index="50">/INSTRUMENT/RADIO_ALTITUDE</mapping>
+        <mapping index="51">/INSTRUMENT/BAROMETER_ADJUST</mapping>
+        <mapping index="52">/INSTRUMENT/AMBIENT_TEMPERATURE</mapping>
+        <mapping index="53">/INSTRUMENT/PRIMARY_ENERYGY</mapping>
+        <mapping index="54">/INSTRUMENT/PRIMARY_POWER</mapping>
+        <mapping index="55">/CACULATED/CALIBRATED_AIR_SPEED</mapping>
+        <mapping index="56">/CACULATED/TRUE_AIR_SPEED</mapping>
+        <mapping index="57">/CACULATED/V1</mapping>
+        <mapping index="58">/CACULATED/VROT</mapping>
+        <mapping index="59">/CACULATED/V2</mapping>
+        <mapping index="60">/CACULATED/VMO</mapping>
+        <mapping index="61">/CACULATED/VSW</mapping>
+        <mapping index="62">/ALARM/WARNING</mapping>
+        <mapping index="63">/ALARM/ERROR</mapping>
+        <mapping index="64">/ALARM/INFO</mapping>
+
+        <grouping index="0">
+            <id>255</id>
+            <params index="0">/FLIGHT_CONTROL/YOKE_ROLL</params>
+            <params index="1">/FLIGHT_CONTROL/YOKE_PITCH</params>
+            <params index="2">/FLIGHT_CONTROL/RUDDER</params>
+            <params index="3">/FLIGHT_CONTROL/THROTTLE_LEFT</params>
+            <params index="4">/FLIGHT_CONTROL/THROTTLE_RIGHT</params>
+            <params index="5">/FLIGHT_CONTROL/SPEED_BRAKE</params>
+            <params index="6">/FLIGHT_CONTROL/PITCH_TRIM</params>
+        </grouping>
+        <grouping index="1">
+            <id>253</id>
+            <params index="0">/FLIGHT_COMMAND/YOKE_ROLL</params>
+            <params index="1">/FLIGHT_COMMAND/YOKE_PITCH</params>
+            <params index="2">/FLIGHT_COMMAND/RUDDER</params>
+            <params index="3">/FLIGHT_COMMAND/THROTTLE_LEFT</params>
+            <params index="4">/FLIGHT_COMMAND/THROTTLE_RIGHT</params>
+            <params index="5">/FLIGHT_COMMAND/SPEED_BRAKE</params>
+            <params index="6">/FLIGHT_COMMAND/PITCH_TRIM</params>
+            <params index="7">/FLIGHT_COMMAND/FLAP</params>
+            <params index="8">/FLIGHT_COMMAND/GEAR</params>
+        </grouping>
+        <grouping index="2">
+            <id>251</id>
+            <params index="0">/AUTOPILOT/ENABLED</params>
+            <params index="1">/AUTOPILOT/SPEED_MODE</params>
+            <params index="2">/AUTOPILOT/PITCH_MODE</params>
+            <params index="3">/AUTOPILOT/HEADING_MODE</params>
+            <params index="4">/AUTOPILOT/SPEED_SELECTOR</params>
+            <params index="5">/AUTOPILOT/ALT_SELECTOR</params>
+            <params index="6">/AUTOPILOT/VSPEED_SELECTOR</params>
+            <params index="7">/AUTOPILOT/HDG_SELECTOR</params>
+            <params index="8">/FLIGHT_DIRECTOR/ENABLED</params>
+            <params index="9">/FLIGHT_DIRECTOR/WAYPOINT_COUNT</params>
+        </grouping>
+        <grouping index="3">
+            <id>252</id>
+            <params index="0">/FLIGHT_DIRECTOR/CURRENT_WAYPOINT</params>
+            <params index="1">/FLIGHT_DIRECTOR/PREVIOUS_WAYPOINT</params>
+            <params index="2">/FLIGHT_DIRECTOR/NEXT_WAYPOINT</params>
+        </grouping>
+        <grouping index="4">
+            <id>250</id>
+            <params index="0">/INSTRUMENT/SLIP_SPEED</params>
+            <params index="1">/INSTRUMENT/GROUND_SPEED</params>
+            <params index="2">/INSTRUMENT/VERTICAL_SPEED</params>
+            <params index="3">/INSTRUMENT/LONGITUDE</params>
+            <params index="4">/INSTRUMENT/LATITUDE</params>
+            <params index="5">/INSTRUMENT/ALTITUDE</params>
+        </grouping>
+        <grouping index="5">
+            <id>249</id>
+            <params index="0">/INSTRUMENT/PITCH</params>
+            <params index="1">/INSTRUMENT/ROLL</params>
+            <params index="2">/INSTRUMENT/HEADING</params>
+            <params index="3">/INSTRUMENT/IAS</params>
+            <params index="4">/INSTRUMENT/AOA</params>
+            <params index="11">/INSTRUMENT/BAROMETRIC_ALTITUDE</params>
+            <params index="12">/INSTRUMENT/RADIO_ALTITUDE</params>
+            <params index="13">/INSTRUMENT/BAROMETER_ADJUST</params>
+            <params index="14">/INSTRUMENT/AMBIENT_TEMPERATURE</params>
+            <params index="15">/INSTRUMENT/PRIMARY_ENERYGY</params>
+            <params index="16">/INSTRUMENT/PRIMARY_POWER</params>
+        </grouping>
+        <grouping index="6">
+            <id>249</id>
+            <params index="0">/CACULATED/CALIBRATED_AIR_SPEED</params>
+            <params index="1">/CACULATED/TRUE_AIR_SPEED</params>
+            <params index="2">/CACULATED/V1</params>
+            <params index="3">/CACULATED/VROT</params>
+            <params index="4">/CACULATED/V2</params>
+            <params index="5">/CACULATED/VMO</params>
+            <params index="6">/CACULATED/VSW</params>
+            <params index="7">/ALARM/WARNING</params>
+            <params index="8">/ALARM/ERROR</params>
+            <params index="9">/ALARM/INFO</params>
+        </grouping>
+
+        <dlUpdatePolicy>
+        </dlUpdatePolicy>
+
+    </flyItfConfig>
+</config>
